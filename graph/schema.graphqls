@@ -1,0 +1,44 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type Schedule {
+  day: String!
+  building: String!
+  classroom: String!
+  timeOfStart: String!
+  timeOfEnd: String!
+}
+
+type CourseGroup {
+  courseGroupCode: String!
+  courseCode: String!
+  professorUsername: String!
+  capacity: Int!
+  taken: Int!
+  schedules: [Schedule!]
+}
+
+type Query {
+  courseGroups(
+    courseName: String!
+    courseGroupCode: String!
+    courseCode: String!
+  ): [CourseGroup!]!
+  schedules(professorUsername: String, studentUsername: String): [Schedule!]!
+}
+
+input Enrollment {
+  studentUsername: String!
+  academicHistoryCode: String!
+  courseGroups: [CourseGroupInput!]
+}
+
+input CourseGroupInput {
+  courseCode: String!
+  courseGroupCode: String!
+}
+
+type Mutation {
+  EnrollSubject(input: Enrollment!): [CourseGroup!]!
+}
