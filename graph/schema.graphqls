@@ -10,28 +10,87 @@ type Schedule {
   timeOfEnd: String!
 }
 
+type Professor {
+  code: String!
+  username: String!
+  name: String!
+}
+
 type CourseGroup {
-  courseGroupCode: String!
-  courseCode: String!
-  professorUsername: String!
-  capacity: Int!
-  taken: Int!
+  code: String!
+  capacity: Float!
+  taken: Float!
+  professor: Professor!
   schedules: [Schedule!]
 }
 
-type Query {
-  courseGroups(
-    courseName: String!
-    courseGroupCode: String!
-    courseCode: String!
-  ): [CourseGroup!]!
-  schedules(professorUsername: String, studentUsername: String): [Schedule!]!
+type Course {
+  code: String!
+  name: String!
+  component: String!
+  groups: [CourseGroup!]
 }
 
-input Enrollment {
+type Grade {
   studentUsername: String!
   academicHistoryCode: String!
-  courseGroups: [CourseGroupInput!]
+  grade: Float!
+}
+
+type ProgramInfo {
+  code: String!
+  name: String!
+}
+
+type ProgressInfo {
+  total: String!
+  disciplinar: String!
+  fundamentacion: String!
+  libreEleccion: String!
+  nivelacion: String!
+}
+
+type CreditsInfo {
+  total: Float!
+  disciplinar: Float!
+  fundamentacion: Float!
+  libreEleccion: Float!
+  nivelacion: Float!
+}
+
+type FinishedCourse {
+  code: String!
+  credits: Float!
+  grade: Float!
+  name: String!
+  passed: Float!
+}
+
+type Semester {
+  semesterLabel: String!
+  courses: [FinishedCourse!]
+}
+
+type AcademicHistory {
+  username: String!
+  academicHistoryCode: String!
+  pa: Float!
+  papa: Float!
+  programInfo: ProgramInfo!
+  progressInfo: ProgressInfo!
+  creditsInfo: CreditsInfo!
+  semesters: [Semester!]
+}
+
+type Enrollment {
+  courseCode: String!
+  courseGroupCode: String!
+}
+
+input EnrollmentInput {
+  studentUsername: String!
+  academicHistoryCode: String!
+  courseGroups: [CourseGroupInput!]!
 }
 
 input CourseGroupInput {
@@ -39,6 +98,22 @@ input CourseGroupInput {
   courseGroupCode: String!
 }
 
+input GradeInput {
+  studentUsername: String!
+  academicHistoryCode: String!
+  grade: Float!
+}
+
+type Query {
+  Courses(code: String, name: String, component: String): [Course]!
+  Schedules(username: String): [Schedule]!
+  AcademicHistories(
+    username: String!
+    academicHistoryCode: String!
+  ): [AcademicHistory]!
+}
+
 type Mutation {
-  EnrollSubject(input: Enrollment!): [CourseGroup!]!
+  EnrollCourses(input: EnrollmentInput!): [Enrollment]!
+  UploadGrades(input: [GradeInput!]): [Grade]!
 }

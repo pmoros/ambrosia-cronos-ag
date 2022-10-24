@@ -2,13 +2,30 @@
 
 package model
 
+type AcademicHistory struct {
+	Username            string        `json:"username"`
+	AcademicHistoryCode string        `json:"academicHistoryCode"`
+	Pa                  float64       `json:"pa"`
+	Papa                float64       `json:"papa"`
+	ProgramInfo         *ProgramInfo  `json:"programInfo"`
+	ProgressInfo        *ProgressInfo `json:"progressInfo"`
+	CreditsInfo         *CreditsInfo  `json:"creditsInfo"`
+	Semesters           []*Semester   `json:"semesters"`
+}
+
+type Course struct {
+	Code      string         `json:"code"`
+	Name      string         `json:"name"`
+	Component string         `json:"component"`
+	Groups    []*CourseGroup `json:"groups"`
+}
+
 type CourseGroup struct {
-	CourseGroupCode   string      `json:"courseGroupCode"`
-	CourseCode        string      `json:"courseCode"`
-	ProfessorUsername string      `json:"professorUsername"`
-	Capacity          int         `json:"capacity"`
-	Taken             int         `json:"taken"`
-	Schedules         []*Schedule `json:"schedules"`
+	Code      string      `json:"code"`
+	Capacity  float64     `json:"capacity"`
+	Taken     float64     `json:"taken"`
+	Professor *Professor  `json:"professor"`
+	Schedules []*Schedule `json:"schedules"`
 }
 
 type CourseGroupInput struct {
@@ -16,10 +33,62 @@ type CourseGroupInput struct {
 	CourseGroupCode string `json:"courseGroupCode"`
 }
 
+type CreditsInfo struct {
+	Total          float64 `json:"total"`
+	Disciplinar    float64 `json:"disciplinar"`
+	Fundamentacion float64 `json:"fundamentacion"`
+	LibreEleccion  float64 `json:"libreEleccion"`
+	Nivelacion     float64 `json:"nivelacion"`
+}
+
 type Enrollment struct {
+	CourseCode      string `json:"courseCode"`
+	CourseGroupCode string `json:"courseGroupCode"`
+}
+
+type EnrollmentInput struct {
 	StudentUsername     string              `json:"studentUsername"`
 	AcademicHistoryCode string              `json:"academicHistoryCode"`
 	CourseGroups        []*CourseGroupInput `json:"courseGroups"`
+}
+
+type FinishedCourse struct {
+	Code    string  `json:"code"`
+	Credits float64 `json:"credits"`
+	Grade   float64 `json:"grade"`
+	Name    string  `json:"name"`
+	Passed  float64 `json:"passed"`
+}
+
+type Grade struct {
+	StudentUsername     string  `json:"studentUsername"`
+	AcademicHistoryCode string  `json:"academicHistoryCode"`
+	Grade               float64 `json:"grade"`
+}
+
+type GradeInput struct {
+	StudentUsername     string  `json:"studentUsername"`
+	AcademicHistoryCode string  `json:"academicHistoryCode"`
+	Grade               float64 `json:"grade"`
+}
+
+type Professor struct {
+	Code     string `json:"code"`
+	Username string `json:"username"`
+	Name     string `json:"name"`
+}
+
+type ProgramInfo struct {
+	Code string `json:"code"`
+	Name string `json:"name"`
+}
+
+type ProgressInfo struct {
+	Total          string `json:"total"`
+	Disciplinar    string `json:"disciplinar"`
+	Fundamentacion string `json:"fundamentacion"`
+	LibreEleccion  string `json:"libreEleccion"`
+	Nivelacion     string `json:"nivelacion"`
 }
 
 type Schedule struct {
@@ -28,4 +97,9 @@ type Schedule struct {
 	Classroom   string `json:"classroom"`
 	TimeOfStart string `json:"timeOfStart"`
 	TimeOfEnd   string `json:"timeOfEnd"`
+}
+
+type Semester struct {
+	SemesterLabel string            `json:"semesterLabel"`
+	Courses       []*FinishedCourse `json:"courses"`
 }

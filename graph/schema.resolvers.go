@@ -5,73 +5,35 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
-	resty "github.com/go-resty/resty/v2"
 	"github.com/mondracode/ambrosia-atlas-api/graph/generated"
 	"github.com/mondracode/ambrosia-atlas-api/graph/model"
 )
 
-// EnrollSubject is the resolver for the EnrollSubject field.
-func (r *mutationResolver) EnrollSubject(ctx context.Context, input model.Enrollment) ([]*model.CourseGroup, error) {
-	// panic(fmt.Errorf("not implemented: EnrollSubject - EnrollSubject"))
-	client := resty.New()
-	courseGroups := []*model.CourseGroup{}
-
-	client.R().
-		SetBody(input).
-		EnableTrace().
-		// Post("https://athenea-api-nf2vn5roaq-uc.a.run.app:enrollments/students")
-		Post("http://127.0.0.1:8080/enrollments/students")
-
-	return courseGroups, nil
+// EnrollCourses is the resolver for the EnrollCourses field.
+func (r *mutationResolver) EnrollCourses(ctx context.Context, input model.EnrollmentInput) ([]*model.Enrollment, error) {
+	panic(fmt.Errorf("not implemented: EnrollCourses - EnrollCourses"))
 }
 
-// CourseGroups is the resolver for the courseGroups field.
-func (r *queryResolver) CourseGroups(ctx context.Context, courseName string, courseGroupCode string, courseCode string) ([]*model.CourseGroup, error) {
-	client := resty.New()
-	courseGroups := []*model.CourseGroup{}
-
-	client.R().
-		SetQueryParams(map[string]string{
-			"courseName":      courseName,
-			"courseGroupCode": courseGroupCode,
-			"courseCode":      courseCode,
-		}).
-		SetResult(&courseGroups).
-		EnableTrace().
-		// Get("https://athenea-api-nf2vn5roaq-uc.a.run.app:/course-groups")
-		Get("http://127.0.0.1:8080/course-groups")
-
-	// panic(fmt.Errorf("not implemented: CourseGroups - courseGroups"))
-	return courseGroups, nil
+// UploadGrades is the resolver for the UploadGrades field.
+func (r *mutationResolver) UploadGrades(ctx context.Context, input []*model.GradeInput) ([]*model.Grade, error) {
+	panic(fmt.Errorf("not implemented: UploadGrades - UploadGrades"))
 }
 
-// Schedules is the resolver for the schedules field.
-func (r *queryResolver) Schedules(ctx context.Context, professorUsername *string, studentUsername *string) ([]*model.Schedule, error) {
-	// panic(fmt.Errorf("not implemented: Schedules - schedules"))
-	client := resty.New()
-	schedules := []*model.Schedule{}
-	if professorUsername == nil {
-		client.R().
-			SetQueryParams(map[string]string{
-				"studentUsername": *studentUsername,
-			}).
-			SetResult(&schedules).
-			EnableTrace().
-			// Get("https://athenea-api-nf2vn5roaq-uc.a.run.app:/schedules/students")
-			Get("http://127.0.0.1:8080/schedules/students")
-	} else {
-		client.R().
-			SetQueryParams(map[string]string{
-				"professorUsername": *professorUsername,
-			}).
-			SetResult(&schedules).
-			EnableTrace().
-			// Get("https://athenea-api-nf2vn5roaq-uc.a.run.app:/schedules/professors")
-			Get("http://127.0.0.1:8080/schedules/professors")
-	}
+// Courses is the resolver for the Courses field.
+func (r *queryResolver) Courses(ctx context.Context, code *string, name *string, component *string) ([]*model.Course, error) {
+	panic(fmt.Errorf("not implemented: Courses - Courses"))
+}
 
-	return schedules, nil
+// Schedules is the resolver for the Schedules field.
+func (r *queryResolver) Schedules(ctx context.Context, username *string) ([]*model.Schedule, error) {
+	panic(fmt.Errorf("not implemented: Schedules - Schedules"))
+}
+
+// AcademicHistories is the resolver for the AcademicHistories field.
+func (r *queryResolver) AcademicHistories(ctx context.Context, username string, academicHistoryCode string) ([]*model.AcademicHistory, error) {
+	panic(fmt.Errorf("not implemented: AcademicHistories - AcademicHistories"))
 }
 
 // Mutation returns generated.MutationResolver implementation.
