@@ -7,6 +7,6 @@ RUN go mod tidy
 RUN go mod download
 RUN go build -o /ambrosia-atlas-api
 
-EXPOSE 8080
+EXPOSE 5000
 
 CMD [ "/ambrosia-atlas-api" ]
