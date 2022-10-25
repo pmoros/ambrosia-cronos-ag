@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/go-resty/resty/v2"
 	"github.com/mondracode/ambrosia-atlas-api/graph/generated"
 	"github.com/mondracode/ambrosia-atlas-api/graph/model"
 )
@@ -23,7 +24,31 @@ func (r *mutationResolver) UploadGrades(ctx context.Context, input []*model.Grad
 
 // Courses is the resolver for the Courses field.
 func (r *queryResolver) Courses(ctx context.Context, code *string, name *string, component *string) ([]*model.Course, error) {
-	panic(fmt.Errorf("not implemented: Courses - Courses"))
+	client := resty.New()
+	courses := []*model.Course{}
+	coursesEndpoint := fmt.Sprintf("https://ebedb84e-b0a7-4762-ba03-512fc1d81606.mock.pstmn.io/%s", "courses")
+	client.R().
+		SetQueryParams(map[string]string{
+			"code":      *code,
+			"name":      *name,
+			"component": *component,
+		}).
+		SetResult(&courses).
+		EnableTrace().
+		Get(coursesEndpoint)
+
+	for _, course := range courses {
+		courseGroups := []*model.CourseGroup{}
+		groupsEndpoint := fmt.Sprintf("https://7b055da9-65da-4801-a842-0426b341d991.mock.pstmn.io/%s/%s", "course-groups", course.Code)
+		client.R().
+			SetResult(&courseGroups).
+			EnableTrace().
+			Get(groupsEndpoint)
+
+		course.Groups = courseGroups
+	}
+
+	return courses, nil
 }
 
 // Schedules is the resolver for the Schedules field.

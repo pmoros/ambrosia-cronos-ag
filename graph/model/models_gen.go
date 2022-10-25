@@ -14,10 +14,11 @@ type AcademicHistory struct {
 }
 
 type Course struct {
-	Code      string         `json:"code"`
-	Name      string         `json:"name"`
-	Component string         `json:"component"`
-	Groups    []*CourseGroup `json:"groups"`
+	Code         string         `json:"code"`
+	Name         string         `json:"name"`
+	Component    string         `json:"component"`
+	Requirements []string       `json:"requirements"`
+	Groups       []*CourseGroup `json:"groups"`
 }
 
 type CourseGroup struct {
