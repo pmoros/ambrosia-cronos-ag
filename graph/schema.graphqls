@@ -3,6 +3,9 @@
 # https://gqlgen.com/getting-started/
 
 type Schedule {
+  courseName: String!
+  groupCode: String!
+  professorName: String!
   day: String!
   building: String!
   classroom: String!
@@ -10,7 +13,7 @@ type Schedule {
   timeOfEnd: String!
 }
 
-type Professor {
+type User {
   code: String!
   username: String!
   name: String!
@@ -20,7 +23,7 @@ type CourseGroup {
   code: String!
   capacity: Float!
   taken: Float!
-  professor: Professor!
+  professor: User!
   schedules: [Schedule!]
 }
 

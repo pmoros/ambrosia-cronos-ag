@@ -25,7 +25,7 @@ type CourseGroup struct {
 	Code      string      `json:"code"`
 	Capacity  float64     `json:"capacity"`
 	Taken     float64     `json:"taken"`
-	Professor *Professor  `json:"professor"`
+	Professor *User       `json:"professor"`
 	Schedules []*Schedule `json:"schedules"`
 }
 
@@ -73,12 +73,6 @@ type GradeInput struct {
 	Grade               float64 `json:"grade"`
 }
 
-type Professor struct {
-	Code     string `json:"code"`
-	Username string `json:"username"`
-	Name     string `json:"name"`
-}
-
 type ProgramInfo struct {
 	Code string `json:"code"`
 	Name string `json:"name"`
@@ -93,14 +87,23 @@ type ProgressInfo struct {
 }
 
 type Schedule struct {
-	Day         string `json:"day"`
-	Building    string `json:"building"`
-	Classroom   string `json:"classroom"`
-	TimeOfStart string `json:"timeOfStart"`
-	TimeOfEnd   string `json:"timeOfEnd"`
+	CourseName    string `json:"courseName"`
+	GroupCode     string `json:"groupCode"`
+	ProfessorName string `json:"professorName"`
+	Day           string `json:"day"`
+	Building      string `json:"building"`
+	Classroom     string `json:"classroom"`
+	TimeOfStart   string `json:"timeOfStart"`
+	TimeOfEnd     string `json:"timeOfEnd"`
 }
 
 type Semester struct {
 	SemesterLabel string            `json:"semesterLabel"`
 	Courses       []*FinishedCourse `json:"courses"`
+}
+
+type User struct {
+	Code     string `json:"code"`
+	Username string `json:"username"`
+	Name     string `json:"name"`
 }
