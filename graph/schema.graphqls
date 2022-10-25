@@ -28,6 +28,7 @@ type Course {
   code: String!
   name: String!
   component: String!
+  requirements: [String!]!
   groups: [CourseGroup!]
 }
 
