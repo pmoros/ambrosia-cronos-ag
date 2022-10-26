@@ -25,7 +25,7 @@ func (r *mutationResolver) UploadGrades(ctx context.Context, input []*model.Grad
 // Courses is the resolver for the Courses field.
 func (r *queryResolver) Courses(ctx context.Context, code *string, name *string, component *string) ([]*model.Course, error) {
 	var urlCoursesService = "https://ebedb84e-b0a7-4762-ba03-512fc1d81606.mock.pstmn.io"
-	var urlEnrollmentsService = "https://7b055da9-65da-4801-a842-0426b341d991.mock.pstmn.io"
+	var urlEnrollmentsService = "https://athenea-api-4axjffbidq-uc.a.run.app"
 
 	client := resty.New()
 	courses := []*model.Course{}
