@@ -94,12 +94,7 @@ type Enrollment {
 input EnrollmentInput {
   studentCode: String!
   academicHistoryCode: String!
-  courseGroups: [CourseGroupInput!]!
-}
-
-input CourseGroupInput {
-  courseCode: String!
-  groupCode: String!
+  courseGroups: [String!]!
 }
 
 input GradeInput {

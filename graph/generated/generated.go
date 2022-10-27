@@ -609,7 +609,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
-		ec.unmarshalInputCourseGroupInput,
 		ec.unmarshalInputEnrollmentInput,
 		ec.unmarshalInputGradeInput,
 	)
@@ -768,12 +767,7 @@ type Enrollment {
 input EnrollmentInput {
   studentCode: String!
   academicHistoryCode: String!
-  courseGroups: [CourseGroupInput!]!
-}
-
-input CourseGroupInput {
-  courseCode: String!
-  groupCode: String!
+  courseGroups: [String!]!
 }
 
 input GradeInput {
@@ -5603,42 +5597,6 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputCourseGroupInput(ctx context.Context, obj interface{}) (model.CourseGroupInput, error) {
-	var it model.CourseGroupInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"courseCode", "groupCode"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "courseCode":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseCode"))
-			it.CourseCode, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "groupCode":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("groupCode"))
-			it.GroupCode, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputEnrollmentInput(ctx context.Context, obj interface{}) (model.EnrollmentInput, error) {
 	var it model.EnrollmentInput
 	asMap := map[string]interface{}{}
@@ -5673,7 +5631,7 @@ func (ec *executionContext) unmarshalInputEnrollmentInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseGroups"))
-			it.CourseGroups, err = ec.unmarshalNCourseGroupInput2ᚕᚖgithubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐCourseGroupInputᚄ(ctx, v)
+			it.CourseGroups, err = ec.unmarshalNString2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -6922,28 +6880,6 @@ func (ec *executionContext) marshalNCourseGroup2ᚖgithubᚗcomᚋmondracodeᚋa
 		return graphql.Null
 	}
 	return ec._CourseGroup(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNCourseGroupInput2ᚕᚖgithubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐCourseGroupInputᚄ(ctx context.Context, v interface{}) ([]*model.CourseGroupInput, error) {
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]*model.CourseGroupInput, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNCourseGroupInput2ᚖgithubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐCourseGroupInput(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) unmarshalNCourseGroupInput2ᚖgithubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐCourseGroupInput(ctx context.Context, v interface{}) (*model.CourseGroupInput, error) {
-	res, err := ec.unmarshalInputCourseGroupInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNCreditsInfo2ᚖgithubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐCreditsInfo(ctx context.Context, sel ast.SelectionSet, v *model.CreditsInfo) graphql.Marshaler {
