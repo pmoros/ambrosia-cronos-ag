@@ -80,8 +80,8 @@ type ComplexityRoot struct {
 	}
 
 	Enrollment struct {
-		CourseCode      func(childComplexity int) int
-		CourseGroupCode func(childComplexity int) int
+		CourseCode func(childComplexity int) int
+		GroupCode  func(childComplexity int) int
 	}
 
 	FinishedCourse struct {
@@ -338,12 +338,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Enrollment.CourseCode(childComplexity), true
 
-	case "Enrollment.courseGroupCode":
-		if e.complexity.Enrollment.CourseGroupCode == nil {
+	case "Enrollment.groupCode":
+		if e.complexity.Enrollment.GroupCode == nil {
 			break
 		}
 
-		return e.complexity.Enrollment.CourseGroupCode(childComplexity), true
+		return e.complexity.Enrollment.GroupCode(childComplexity), true
 
 	case "FinishedCourse.code":
 		if e.complexity.FinishedCourse.Code == nil {
@@ -762,18 +762,18 @@ type AcademicHistory {
 
 type Enrollment {
   courseCode: String!
-  courseGroupCode: String!
+  groupCode: String!
 }
 
 input EnrollmentInput {
-  studentUsername: String!
+  studentCode: String!
   academicHistoryCode: String!
   courseGroups: [CourseGroupInput!]!
 }
 
 input CourseGroupInput {
   courseCode: String!
-  courseGroupCode: String!
+  groupCode: String!
 }
 
 input GradeInput {
@@ -2079,8 +2079,8 @@ func (ec *executionContext) fieldContext_Enrollment_courseCode(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _Enrollment_courseGroupCode(ctx context.Context, field graphql.CollectedField, obj *model.Enrollment) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Enrollment_courseGroupCode(ctx, field)
+func (ec *executionContext) _Enrollment_groupCode(ctx context.Context, field graphql.CollectedField, obj *model.Enrollment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Enrollment_groupCode(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2093,7 +2093,7 @@ func (ec *executionContext) _Enrollment_courseGroupCode(ctx context.Context, fie
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.CourseGroupCode, nil
+		return obj.GroupCode, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2110,7 +2110,7 @@ func (ec *executionContext) _Enrollment_courseGroupCode(ctx context.Context, fie
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Enrollment_courseGroupCode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Enrollment_groupCode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Enrollment",
 		Field:      field,
@@ -2516,8 +2516,8 @@ func (ec *executionContext) fieldContext_Mutation_EnrollCourses(ctx context.Cont
 			switch field.Name {
 			case "courseCode":
 				return ec.fieldContext_Enrollment_courseCode(ctx, field)
-			case "courseGroupCode":
-				return ec.fieldContext_Enrollment_courseGroupCode(ctx, field)
+			case "groupCode":
+				return ec.fieldContext_Enrollment_groupCode(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Enrollment", field.Name)
 		},
@@ -5610,7 +5610,7 @@ func (ec *executionContext) unmarshalInputCourseGroupInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"courseCode", "courseGroupCode"}
+	fieldsInOrder := [...]string{"courseCode", "groupCode"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -5625,11 +5625,11 @@ func (ec *executionContext) unmarshalInputCourseGroupInput(ctx context.Context, 
 			if err != nil {
 				return it, err
 			}
-		case "courseGroupCode":
+		case "groupCode":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseGroupCode"))
-			it.CourseGroupCode, err = ec.unmarshalNString2string(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("groupCode"))
+			it.GroupCode, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -5646,18 +5646,18 @@ func (ec *executionContext) unmarshalInputEnrollmentInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"studentUsername", "academicHistoryCode", "courseGroups"}
+	fieldsInOrder := [...]string{"studentCode", "academicHistoryCode", "courseGroups"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "studentUsername":
+		case "studentCode":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("studentUsername"))
-			it.StudentUsername, err = ec.unmarshalNString2string(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("studentCode"))
+			it.StudentCode, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -5988,9 +5988,9 @@ func (ec *executionContext) _Enrollment(ctx context.Context, sel ast.SelectionSe
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "courseGroupCode":
+		case "groupCode":
 
-			out.Values[i] = ec._Enrollment_courseGroupCode(ctx, field, obj)
+			out.Values[i] = ec._Enrollment_groupCode(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++

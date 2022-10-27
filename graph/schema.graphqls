@@ -88,18 +88,18 @@ type AcademicHistory {
 
 type Enrollment {
   courseCode: String!
-  courseGroupCode: String!
+  groupCode: String!
 }
 
 input EnrollmentInput {
-  studentUsername: String!
+  studentCode: String!
   academicHistoryCode: String!
   courseGroups: [CourseGroupInput!]!
 }
 
 input CourseGroupInput {
   courseCode: String!
-  courseGroupCode: String!
+  groupCode: String!
 }
 
 input GradeInput {

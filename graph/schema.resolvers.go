@@ -14,7 +14,29 @@ import (
 
 // EnrollCourses is the resolver for the EnrollCourses field.
 func (r *mutationResolver) EnrollCourses(ctx context.Context, input model.EnrollmentInput) ([]*model.Enrollment, error) {
-	panic(fmt.Errorf("not implemented: EnrollCourses - EnrollCourses"))
+	urlGrades := "https://b04e88f7-b644-4e1a-8d02-09e58818146e.mock.pstmn.io"
+
+	client := resty.New()
+
+	enrollments := []*model.Enrollment{}
+
+	gradesEndpoint := fmt.Sprintf("%s/%s", urlGrades, "can-enroll")
+	resp, err := client.R().
+		SetBody(input).
+		EnableTrace().
+		Get(gradesEndpoint)
+
+	if err != nil {
+		return nil, fmt.Errorf("error: %s", err)
+	}
+
+	if resp.StatusCode() != 200 {
+		return nil, fmt.Errorf("error: %s", resp.Status())
+	}
+
+	// Enroll courses using enrollments service and enrollments queue
+
+	return enrollments, nil
 }
 
 // UploadGrades is the resolver for the UploadGrades field.
@@ -26,8 +48,9 @@ func (r *mutationResolver) UploadGrades(ctx context.Context, input []*model.Grad
 func (r *queryResolver) Courses(ctx context.Context, code *string, name *string, component *string) ([]*model.Course, error) {
 	var urlCoursesService = "https://ebedb84e-b0a7-4762-ba03-512fc1d81606.mock.pstmn.io"
 	var urlEnrollmentsService = "https://athenea-api-4axjffbidq-uc.a.run.app"
-
 	client := resty.New()
+
+	// Get courses from courses service
 	courses := []*model.Course{}
 	coursesEndpoint := fmt.Sprintf("%s/%s", urlCoursesService, "courses")
 	client.R().
@@ -40,6 +63,7 @@ func (r *queryResolver) Courses(ctx context.Context, code *string, name *string,
 		EnableTrace().
 		Get(coursesEndpoint)
 
+	// Get course groups from enrollments service
 	for _, course := range courses {
 		courseGroups := []*model.CourseGroup{}
 		groupsEndpoint := fmt.Sprintf("%s/%s/%s", urlEnrollmentsService, "course-groups", course.Code)

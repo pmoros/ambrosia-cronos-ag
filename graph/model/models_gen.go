@@ -30,8 +30,8 @@ type CourseGroup struct {
 }
 
 type CourseGroupInput struct {
-	CourseCode      string `json:"courseCode"`
-	CourseGroupCode string `json:"courseGroupCode"`
+	CourseCode string `json:"courseCode"`
+	GroupCode  string `json:"groupCode"`
 }
 
 type CreditsInfo struct {
@@ -43,12 +43,12 @@ type CreditsInfo struct {
 }
 
 type Enrollment struct {
-	CourseCode      string `json:"courseCode"`
-	CourseGroupCode string `json:"courseGroupCode"`
+	CourseCode string `json:"courseCode"`
+	GroupCode  string `json:"groupCode"`
 }
 
 type EnrollmentInput struct {
-	StudentUsername     string              `json:"studentUsername"`
+	StudentCode         string              `json:"studentCode"`
 	AcademicHistoryCode string              `json:"academicHistoryCode"`
 	CourseGroups        []*CourseGroupInput `json:"courseGroups"`
 }
