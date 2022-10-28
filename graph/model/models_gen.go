@@ -29,11 +29,6 @@ type CourseGroup struct {
 	Schedules []*Schedule `json:"schedules"`
 }
 
-type CourseGroupInput struct {
-	CourseCode      string `json:"courseCode"`
-	CourseGroupCode string `json:"courseGroupCode"`
-}
-
 type CreditsInfo struct {
 	Total          float64 `json:"total"`
 	Disciplinar    float64 `json:"disciplinar"`
@@ -43,14 +38,15 @@ type CreditsInfo struct {
 }
 
 type Enrollment struct {
-	CourseCode      string `json:"courseCode"`
-	CourseGroupCode string `json:"courseGroupCode"`
+	StudentCode         string   `json:"studentCode"`
+	AcademicHistoryCode string   `json:"academicHistoryCode"`
+	CourseGroups        []string `json:"courseGroups"`
 }
 
 type EnrollmentInput struct {
-	StudentUsername     string              `json:"studentUsername"`
-	AcademicHistoryCode string              `json:"academicHistoryCode"`
-	CourseGroups        []*CourseGroupInput `json:"courseGroups"`
+	StudentCode         string   `json:"studentCode"`
+	AcademicHistoryCode string   `json:"academicHistoryCode"`
+	CourseGroups        []string `json:"courseGroups"`
 }
 
 type FinishedCourse struct {
