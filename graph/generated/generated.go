@@ -120,7 +120,7 @@ type ComplexityRoot struct {
 	Query struct {
 		AcademicHistories func(childComplexity int, username string, academicHistoryCode string) int
 		Courses           func(childComplexity int, code *string, name *string, component *string) int
-		Schedules         func(childComplexity int, username *string) int
+		UserCourses       func(childComplexity int, userCode *string) int
 	}
 
 	Schedule struct {
@@ -152,7 +152,7 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	Courses(ctx context.Context, code *string, name *string, component *string) ([]*model.Course, error)
-	Schedules(ctx context.Context, username *string) ([]*model.Schedule, error)
+	UserCourses(ctx context.Context, userCode *string) ([]*model.Course, error)
 	AcademicHistories(ctx context.Context, username string, academicHistoryCode string) ([]*model.AcademicHistory, error)
 }
 
@@ -506,17 +506,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Courses(childComplexity, args["code"].(*string), args["name"].(*string), args["component"].(*string)), true
 
-	case "Query.Schedules":
-		if e.complexity.Query.Schedules == nil {
+	case "Query.UserCourses":
+		if e.complexity.Query.UserCourses == nil {
 			break
 		}
 
-		args, err := ec.field_Query_Schedules_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_UserCourses_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.Schedules(childComplexity, args["username"].(*string)), true
+		return e.complexity.Query.UserCourses(childComplexity, args["userCode"].(*string)), true
 
 	case "Schedule.building":
 		if e.complexity.Schedule.Building == nil {
@@ -787,7 +787,7 @@ input GradeInput {
 
 type Query {
   Courses(code: String, name: String, component: String): [Course]!
-  Schedules(username: String): [Schedule]!
+  UserCourses(userCode: String): [Course]!
   AcademicHistories(
     username: String!
     academicHistoryCode: String!
@@ -893,18 +893,18 @@ func (ec *executionContext) field_Query_Courses_args(ctx context.Context, rawArg
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_Schedules_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_UserCourses_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 *string
-	if tmp, ok := rawArgs["username"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
+	if tmp, ok := rawArgs["userCode"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userCode"))
 		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["username"] = arg0
+	args["userCode"] = arg0
 	return args, nil
 }
 
@@ -3023,8 +3023,8 @@ func (ec *executionContext) fieldContext_Query_Courses(ctx context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_Schedules(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_Schedules(ctx, field)
+func (ec *executionContext) _Query_UserCourses(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_UserCourses(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3037,7 +3037,7 @@ func (ec *executionContext) _Query_Schedules(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Schedules(rctx, fc.Args["username"].(*string))
+		return ec.resolvers.Query().UserCourses(rctx, fc.Args["userCode"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3049,12 +3049,12 @@ func (ec *executionContext) _Query_Schedules(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Schedule)
+	res := resTmp.([]*model.Course)
 	fc.Result = res
-	return ec.marshalNSchedule2ᚕᚖgithubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐSchedule(ctx, field.Selections, res)
+	return ec.marshalNCourse2ᚕᚖgithubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐCourse(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_Schedules(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_UserCourses(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -3062,24 +3062,18 @@ func (ec *executionContext) fieldContext_Query_Schedules(ctx context.Context, fi
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "courseName":
-				return ec.fieldContext_Schedule_courseName(ctx, field)
-			case "groupCode":
-				return ec.fieldContext_Schedule_groupCode(ctx, field)
-			case "professorName":
-				return ec.fieldContext_Schedule_professorName(ctx, field)
-			case "day":
-				return ec.fieldContext_Schedule_day(ctx, field)
-			case "building":
-				return ec.fieldContext_Schedule_building(ctx, field)
-			case "classroom":
-				return ec.fieldContext_Schedule_classroom(ctx, field)
-			case "timeOfStart":
-				return ec.fieldContext_Schedule_timeOfStart(ctx, field)
-			case "timeOfEnd":
-				return ec.fieldContext_Schedule_timeOfEnd(ctx, field)
+			case "code":
+				return ec.fieldContext_Course_code(ctx, field)
+			case "name":
+				return ec.fieldContext_Course_name(ctx, field)
+			case "component":
+				return ec.fieldContext_Course_component(ctx, field)
+			case "requirements":
+				return ec.fieldContext_Course_requirements(ctx, field)
+			case "groups":
+				return ec.fieldContext_Course_groups(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Schedule", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Course", field.Name)
 		},
 	}
 	defer func() {
@@ -3089,7 +3083,7 @@ func (ec *executionContext) fieldContext_Query_Schedules(ctx context.Context, fi
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_Schedules_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_UserCourses_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -6305,7 +6299,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "Schedules":
+		case "UserCourses":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -6314,7 +6308,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_Schedules(ctx, field)
+				res = ec._Query_UserCourses(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -7061,44 +7055,6 @@ func (ec *executionContext) marshalNProgressInfo2ᚖgithubᚗcomᚋmondracodeᚋ
 	return ec._ProgressInfo(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNSchedule2ᚕᚖgithubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐSchedule(ctx context.Context, sel ast.SelectionSet, v []*model.Schedule) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOSchedule2ᚖgithubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐSchedule(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	return ret
-}
-
 func (ec *executionContext) marshalNSchedule2ᚖgithubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐSchedule(ctx context.Context, sel ast.SelectionSet, v *model.Schedule) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -7635,13 +7591,6 @@ func (ec *executionContext) marshalOSchedule2ᚕᚖgithubᚗcomᚋmondracodeᚋa
 	}
 
 	return ret
-}
-
-func (ec *executionContext) marshalOSchedule2ᚖgithubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐSchedule(ctx context.Context, sel ast.SelectionSet, v *model.Schedule) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Schedule(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOSemester2ᚕᚖgithubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐSemesterᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Semester) graphql.Marshaler {

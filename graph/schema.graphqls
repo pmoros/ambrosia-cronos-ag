@@ -106,7 +106,7 @@ input GradeInput {
 
 type Query {
   Courses(code: String, name: String, component: String): [Course]!
-  Schedules(username: String): [Schedule]!
+  UserCourses(userCode: String): [Course]!
   AcademicHistories(
     username: String!
     academicHistoryCode: String!
