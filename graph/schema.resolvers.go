@@ -18,13 +18,17 @@ import (
 )
 
 // EnrollCourses is the resolver for the EnrollCourses field.
-func (r *mutationResolver) EnrollCourses(ctx context.Context, input model.EnrollmentInput) ([]*model.Enrollment, error) {
+func (r *mutationResolver) EnrollCourses(ctx context.Context, input model.EnrollmentInput) (*model.Enrollment, error) {
 	urlGrades := "https://b04e88f7-b644-4e1a-8d02-09e58818146e.mock.pstmn.io"
 	urlEnrollmentsMQ := "amqp://guest:guest@34.125.61.62:5672/"
 
 	client := resty.New()
 
-	enrollments := []*model.Enrollment{}
+	enrollment := model.Enrollment{
+		StudentCode:         input.StudentCode,
+		AcademicHistoryCode: input.AcademicHistoryCode,
+		CourseGroups:        input.CourseGroups,
+	}
 
 	// validates if the student can enroll the course
 	gradesEndpoint := fmt.Sprintf("%s/%s", urlGrades, "can-enroll")
@@ -100,7 +104,7 @@ func (r *mutationResolver) EnrollCourses(ctx context.Context, input model.Enroll
 	failOnError(err, "Failed to publish a message")
 	log.Printf(" [x] Sent %s\n", input)
 
-	return enrollments, nil
+	return &enrollment, nil
 }
 
 // UploadGrades is the resolver for the UploadGrades field.

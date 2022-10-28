@@ -87,8 +87,9 @@ type AcademicHistory {
 }
 
 type Enrollment {
-  courseCode: String!
-  groupCode: String!
+  studentCode: String!
+  academicHistoryCode: String!
+  courseGroups: [String!]!
 }
 
 input EnrollmentInput {
@@ -113,6 +114,6 @@ type Query {
 }
 
 type Mutation {
-  EnrollCourses(input: EnrollmentInput!): [Enrollment]!
+  EnrollCourses(input: EnrollmentInput!): Enrollment!
   UploadGrades(input: [GradeInput!]): [Grade]!
 }

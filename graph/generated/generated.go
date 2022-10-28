@@ -80,8 +80,9 @@ type ComplexityRoot struct {
 	}
 
 	Enrollment struct {
-		CourseCode func(childComplexity int) int
-		GroupCode  func(childComplexity int) int
+		AcademicHistoryCode func(childComplexity int) int
+		CourseGroups        func(childComplexity int) int
+		StudentCode         func(childComplexity int) int
 	}
 
 	FinishedCourse struct {
@@ -146,7 +147,7 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	EnrollCourses(ctx context.Context, input model.EnrollmentInput) ([]*model.Enrollment, error)
+	EnrollCourses(ctx context.Context, input model.EnrollmentInput) (*model.Enrollment, error)
 	UploadGrades(ctx context.Context, input []*model.GradeInput) ([]*model.Grade, error)
 }
 type QueryResolver interface {
@@ -331,19 +332,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CreditsInfo.Total(childComplexity), true
 
-	case "Enrollment.courseCode":
-		if e.complexity.Enrollment.CourseCode == nil {
+	case "Enrollment.academicHistoryCode":
+		if e.complexity.Enrollment.AcademicHistoryCode == nil {
 			break
 		}
 
-		return e.complexity.Enrollment.CourseCode(childComplexity), true
+		return e.complexity.Enrollment.AcademicHistoryCode(childComplexity), true
 
-	case "Enrollment.groupCode":
-		if e.complexity.Enrollment.GroupCode == nil {
+	case "Enrollment.courseGroups":
+		if e.complexity.Enrollment.CourseGroups == nil {
 			break
 		}
 
-		return e.complexity.Enrollment.GroupCode(childComplexity), true
+		return e.complexity.Enrollment.CourseGroups(childComplexity), true
+
+	case "Enrollment.studentCode":
+		if e.complexity.Enrollment.StudentCode == nil {
+			break
+		}
+
+		return e.complexity.Enrollment.StudentCode(childComplexity), true
 
 	case "FinishedCourse.code":
 		if e.complexity.FinishedCourse.Code == nil {
@@ -760,8 +768,9 @@ type AcademicHistory {
 }
 
 type Enrollment {
-  courseCode: String!
-  groupCode: String!
+  studentCode: String!
+  academicHistoryCode: String!
+  courseGroups: [String!]!
 }
 
 input EnrollmentInput {
@@ -786,7 +795,7 @@ type Query {
 }
 
 type Mutation {
-  EnrollCourses(input: EnrollmentInput!): [Enrollment]!
+  EnrollCourses(input: EnrollmentInput!): Enrollment!
   UploadGrades(input: [GradeInput!]): [Grade]!
 }
 `, BuiltIn: false},
@@ -2029,8 +2038,8 @@ func (ec *executionContext) fieldContext_CreditsInfo_nivelacion(ctx context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _Enrollment_courseCode(ctx context.Context, field graphql.CollectedField, obj *model.Enrollment) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Enrollment_courseCode(ctx, field)
+func (ec *executionContext) _Enrollment_studentCode(ctx context.Context, field graphql.CollectedField, obj *model.Enrollment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Enrollment_studentCode(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2043,7 +2052,7 @@ func (ec *executionContext) _Enrollment_courseCode(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.CourseCode, nil
+		return obj.StudentCode, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2060,7 +2069,7 @@ func (ec *executionContext) _Enrollment_courseCode(ctx context.Context, field gr
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Enrollment_courseCode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Enrollment_studentCode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Enrollment",
 		Field:      field,
@@ -2073,8 +2082,8 @@ func (ec *executionContext) fieldContext_Enrollment_courseCode(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _Enrollment_groupCode(ctx context.Context, field graphql.CollectedField, obj *model.Enrollment) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Enrollment_groupCode(ctx, field)
+func (ec *executionContext) _Enrollment_academicHistoryCode(ctx context.Context, field graphql.CollectedField, obj *model.Enrollment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Enrollment_academicHistoryCode(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2087,7 +2096,7 @@ func (ec *executionContext) _Enrollment_groupCode(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.GroupCode, nil
+		return obj.AcademicHistoryCode, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2104,7 +2113,51 @@ func (ec *executionContext) _Enrollment_groupCode(ctx context.Context, field gra
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Enrollment_groupCode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Enrollment_academicHistoryCode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Enrollment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Enrollment_courseGroups(ctx context.Context, field graphql.CollectedField, obj *model.Enrollment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Enrollment_courseGroups(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CourseGroups, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Enrollment_courseGroups(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Enrollment",
 		Field:      field,
@@ -2495,9 +2548,9 @@ func (ec *executionContext) _Mutation_EnrollCourses(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Enrollment)
+	res := resTmp.(*model.Enrollment)
 	fc.Result = res
-	return ec.marshalNEnrollment2ᚕᚖgithubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐEnrollment(ctx, field.Selections, res)
+	return ec.marshalNEnrollment2ᚖgithubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐEnrollment(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_EnrollCourses(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2508,10 +2561,12 @@ func (ec *executionContext) fieldContext_Mutation_EnrollCourses(ctx context.Cont
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "courseCode":
-				return ec.fieldContext_Enrollment_courseCode(ctx, field)
-			case "groupCode":
-				return ec.fieldContext_Enrollment_groupCode(ctx, field)
+			case "studentCode":
+				return ec.fieldContext_Enrollment_studentCode(ctx, field)
+			case "academicHistoryCode":
+				return ec.fieldContext_Enrollment_academicHistoryCode(ctx, field)
+			case "courseGroups":
+				return ec.fieldContext_Enrollment_courseGroups(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Enrollment", field.Name)
 		},
@@ -5939,16 +5994,23 @@ func (ec *executionContext) _Enrollment(ctx context.Context, sel ast.SelectionSe
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Enrollment")
-		case "courseCode":
+		case "studentCode":
 
-			out.Values[i] = ec._Enrollment_courseCode(ctx, field, obj)
+			out.Values[i] = ec._Enrollment_studentCode(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "groupCode":
+		case "academicHistoryCode":
 
-			out.Values[i] = ec._Enrollment_groupCode(ctx, field, obj)
+			out.Values[i] = ec._Enrollment_academicHistoryCode(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "courseGroups":
+
+			out.Values[i] = ec._Enrollment_courseGroups(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -6892,42 +6954,18 @@ func (ec *executionContext) marshalNCreditsInfo2ᚖgithubᚗcomᚋmondracodeᚋa
 	return ec._CreditsInfo(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNEnrollment2ᚕᚖgithubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐEnrollment(ctx context.Context, sel ast.SelectionSet, v []*model.Enrollment) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOEnrollment2ᚖgithubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐEnrollment(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
+func (ec *executionContext) marshalNEnrollment2githubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐEnrollment(ctx context.Context, sel ast.SelectionSet, v model.Enrollment) graphql.Marshaler {
+	return ec._Enrollment(ctx, sel, &v)
+}
 
+func (ec *executionContext) marshalNEnrollment2ᚖgithubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐEnrollment(ctx context.Context, sel ast.SelectionSet, v *model.Enrollment) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
 	}
-	wg.Wait()
-
-	return ret
+	return ec._Enrollment(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNEnrollmentInput2githubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐEnrollmentInput(ctx context.Context, v interface{}) (model.EnrollmentInput, error) {
@@ -7476,13 +7514,6 @@ func (ec *executionContext) marshalOCourseGroup2ᚕᚖgithubᚗcomᚋmondracode�
 	}
 
 	return ret
-}
-
-func (ec *executionContext) marshalOEnrollment2ᚖgithubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐEnrollment(ctx context.Context, sel ast.SelectionSet, v *model.Enrollment) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Enrollment(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOFinishedCourse2ᚕᚖgithubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐFinishedCourseᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.FinishedCourse) graphql.Marshaler {
