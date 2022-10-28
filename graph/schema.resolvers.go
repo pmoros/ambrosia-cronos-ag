@@ -4,13 +4,17 @@ package graph
 // will be copied through when generating and any unknown code will be moved to the end.
 
 import (
+	"bytes"
 	"context"
+	"encoding/gob"
 	"fmt"
 	"log"
+	"time"
 
 	resty "github.com/go-resty/resty/v2"
 	"github.com/mondracode/ambrosia-atlas-api/graph/generated"
 	"github.com/mondracode/ambrosia-atlas-api/graph/model"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 // EnrollCourses is the resolver for the EnrollCourses field.
@@ -35,6 +39,51 @@ func (r *mutationResolver) EnrollCourses(ctx context.Context, input model.Enroll
 	if resp.StatusCode() != 200 {
 		return nil, fmt.Errorf("error: %s", resp.Status())
 	}
+
+	// Enroll courses using enrollments service and enrollments queue
+	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	failOnError(err, "Failed to connect to RabbitMQ")
+	defer conn.Close()
+
+	ch, err := conn.Channel()
+	failOnError(err, "Failed to open a channel")
+	defer ch.Close()
+
+	q, err := ch.QueueDeclare(
+		"enrollments", // name
+		false,         // durable
+		false,         // delete when unused
+		false,         // exclusive
+		false,         // no-wait
+		nil,           // arguments
+	)
+	failOnError(err, "Failed to declare a queue")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var network bytes.Buffer        // Stand-in for a network connection
+	enc := gob.NewEncoder(&network) // Will write to network.
+	err = enc.Encode(input)
+	if err != nil {
+		log.Fatal("encode error:", err)
+	}
+
+	if err != nil {
+		log.Fatal("encode error:", err)
+	}
+
+	err = ch.PublishWithContext(ctx,
+		"",     // exchange
+		q.Name, // routing key
+		false,  // mandatory
+		false,  // immediate
+		amqp.Publishing{
+			ContentType: "application/json",
+			Body:        []byte(network.Bytes()),
+		})
+	failOnError(err, "Failed to publish a message")
+	log.Printf(" [x] Sent %s\n", input)
 
 	return enrollments, nil
 }
