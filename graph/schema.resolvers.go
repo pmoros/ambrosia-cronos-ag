@@ -21,6 +21,7 @@ import (
 func (r *mutationResolver) EnrollCourses(ctx context.Context, input model.EnrollmentInput) (*model.Enrollment, error) {
 	urlGrades := "https://b04e88f7-b644-4e1a-8d02-09e58818146e.mock.pstmn.io"
 	urlEnrollmentsMQ := "amqp://guest:guest@34.125.61.62:5672/"
+	// urlEnrollmentsMQ := "amqp://guest:guest@localhost:5672/"
 
 	client := resty.New()
 
@@ -148,7 +149,15 @@ func (r *queryResolver) Courses(ctx context.Context, code *string, name *string,
 
 // UserCourses is the resolver for the UserCourses field.
 func (r *queryResolver) UserCourses(ctx context.Context, userCode *string) ([]*model.Course, error) {
-	panic(fmt.Errorf("not implemented: UserCourses - UserCourses"))
+	// var urlCoursesService = "https://ebedb84e-b0a7-4762-ba03-512fc1d81606.mock.pstmn.io"
+	// var urlEnrollmentsService = "https://athenea-api-4axjffbidq-uc.a.run.app"
+	// client := resty.New()
+
+	courses := []*model.Course{}
+
+	// Get assigned courses from enrollments service
+	return courses, nil
+
 }
 
 // AcademicHistories is the resolver for the AcademicHistories field.
