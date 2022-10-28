@@ -62,9 +62,24 @@ func (r *mutationResolver) EnrollCourses(ctx context.Context, input model.Enroll
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
+	textToSend := "{"
+	textToSend += "("
+	textToSend += input.StudentCode
+	textToSend += ")"
+	textToSend += "("
+	textToSend += input.AcademicHistoryCode
+	textToSend += ")"
+
+	textToSend += "("
+	for _, group := range input.CourseGroups {
+		textToSend += "[" + group + "]"
+	}
+	textToSend += ")"
+	textToSend += "}"
+
 	var network bytes.Buffer        // Stand-in for a network connection
 	enc := gob.NewEncoder(&network) // Will write to network.
-	err = enc.Encode(input)
+	err = enc.Encode(textToSend)
 	if err != nil {
 		log.Fatal("encode error:", err)
 	}
@@ -79,7 +94,7 @@ func (r *mutationResolver) EnrollCourses(ctx context.Context, input model.Enroll
 		false,  // mandatory
 		false,  // immediate
 		amqp.Publishing{
-			ContentType: "application/json",
+			ContentType: "text/plain",
 			Body:        []byte(network.Bytes()),
 		})
 	failOnError(err, "Failed to publish a message")
