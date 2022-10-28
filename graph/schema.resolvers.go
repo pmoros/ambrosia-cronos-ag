@@ -20,6 +20,7 @@ import (
 // EnrollCourses is the resolver for the EnrollCourses field.
 func (r *mutationResolver) EnrollCourses(ctx context.Context, input model.EnrollmentInput) ([]*model.Enrollment, error) {
 	urlGrades := "https://b04e88f7-b644-4e1a-8d02-09e58818146e.mock.pstmn.io"
+	urlEnrollmentsMQ := "amqp://guest:guest@34.125.61.62:5672/"
 
 	client := resty.New()
 
@@ -41,7 +42,7 @@ func (r *mutationResolver) EnrollCourses(ctx context.Context, input model.Enroll
 	}
 
 	// Enroll courses using enrollments service and enrollments queue
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	conn, err := amqp.Dial(urlEnrollmentsMQ)
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
@@ -63,18 +64,17 @@ func (r *mutationResolver) EnrollCourses(ctx context.Context, input model.Enroll
 	defer cancel()
 
 	textToSend := "{"
-	textToSend += "("
 	textToSend += input.StudentCode
-	textToSend += ")"
-	textToSend += "("
+	textToSend += "#"
 	textToSend += input.AcademicHistoryCode
-	textToSend += ")"
+	textToSend += "#"
 
-	textToSend += "("
 	for _, group := range input.CourseGroups {
-		textToSend += "[" + group + "]"
+		textToSend += group
+		if group != input.CourseGroups[len(input.CourseGroups)-1] {
+			textToSend += ","
+		}
 	}
-	textToSend += ")"
 	textToSend += "}"
 
 	var network bytes.Buffer        // Stand-in for a network connection
