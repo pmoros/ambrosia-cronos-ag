@@ -146,9 +146,9 @@ func (r *queryResolver) Courses(ctx context.Context, code *string, name *string,
 	return courses, nil
 }
 
-// Schedules is the resolver for the Schedules field.
-func (r *queryResolver) Schedules(ctx context.Context, username *string) ([]*model.Schedule, error) {
-	panic(fmt.Errorf("not implemented: Schedules - Schedules"))
+// UserCourses is the resolver for the UserCourses field.
+func (r *queryResolver) UserCourses(ctx context.Context, userCode *string) ([]*model.Course, error) {
+	panic(fmt.Errorf("not implemented: UserCourses - UserCourses"))
 }
 
 // AcademicHistories is the resolver for the AcademicHistories field.
@@ -171,6 +171,9 @@ type queryResolver struct{ *Resolver }
 //   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
 //     it when you're done.
 //   - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *queryResolver) Schedules(ctx context.Context, username *string) ([]*model.Schedule, error) {
+	panic(fmt.Errorf("not implemented: Schedules - Schedules"))
+}
 func failOnError(err error, msg string) {
 	if err != nil {
 		log.Panicf("%s: %s", msg, err)
