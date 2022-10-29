@@ -110,7 +110,20 @@ func (r *mutationResolver) EnrollCourses(ctx context.Context, input model.Enroll
 
 // UploadGrades is the resolver for the UploadGrades field.
 func (r *mutationResolver) UploadGrades(ctx context.Context, input []*model.GradeInput) ([]*model.Grade, error) {
-	panic(fmt.Errorf("not implemented: UploadGrades - UploadGrades"))
+	var urlGradesService = "https://b04e88f7-b644-4e1a-8d02-09e58818146e.mock.pstmn.io"
+	var urlPublishGrades = fmt.Sprintf("%s/%s", urlGradesService, "publish-grades")
+
+	grades := []*model.Grade{}
+
+	client := resty.New()
+	client.R().
+		SetBody(input).
+		SetResult(&grades).
+		EnableTrace().
+		Put(urlPublishGrades)
+
+	return grades, nil
+
 }
 
 // Courses is the resolver for the Courses field.
@@ -200,7 +213,19 @@ func (r *queryResolver) AcademicHistories(ctx context.Context, userCode string, 
 
 // PendingCourses is the resolver for the PendingCourses field.
 func (r *queryResolver) PendingCourses(ctx context.Context, userCode string, academicHistoryCode string) ([]*model.Course, error) {
-	panic(fmt.Errorf("not implemented: PendingCourses - PendingCourses"))
+	var urlCoursesService = "https://apollo-api-jo5b4asiwq-uc.a.run.app"
+	var allCoursesEndpoint = fmt.Sprintf("%s/%s", urlCoursesService, "subjects/get_all")
+
+	courses := []*model.Course{}
+	client := resty.New()
+
+	client.R().
+		SetResult(&courses).
+		EnableTrace().
+		Get(allCoursesEndpoint)
+
+	return courses, nil
+
 }
 
 // Appointments is the resolver for the Appointments field.
