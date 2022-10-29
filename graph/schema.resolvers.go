@@ -151,12 +151,31 @@ func (r *queryResolver) Courses(ctx context.Context, code *string, name *string,
 // UserCourses is the resolver for the UserCourses field.
 func (r *queryResolver) UserCourses(ctx context.Context, userCode *string) ([]*model.UserCourse, error) {
 	// var urlCoursesService = "https://ebedb84e-b0a7-4762-ba03-512fc1d81606.mock.pstmn.io"
-	// var urlEnrollmentsService = "https://athenea-api-4axjffbidq-uc.a.run.app"
-	// client := resty.New()
+	var urlCoursesService = "https://apollo-api-jo5b4asiwq-uc.a.run.app"
+	var urlEnrollmentsService = "https://athenea-api-4axjffbidq-uc.a.run.app"
+	client := resty.New()
 
 	courses := []*model.UserCourse{}
-
 	// Get assigned courses from enrollments service
+	enrollmentsEndpoint := fmt.Sprintf("%s/%s/%s", urlEnrollmentsService, "users/course-groups", *userCode)
+
+	client.R().
+		SetResult(&courses).
+		EnableTrace().
+		Get(enrollmentsEndpoint)
+
+	// Set groups name
+	for _, course := range courses {
+		coursesEndpoint := fmt.Sprintf("%s/%s", urlCoursesService, "subjects")
+		client.R().
+			SetQueryParams(map[string]string{
+				"code": course.CourseCode,
+			}).
+			SetResult(&courses).
+			EnableTrace().
+			Get(coursesEndpoint)
+	}
+
 	return courses, nil
 }
 
