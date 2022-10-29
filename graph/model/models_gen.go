@@ -3,7 +3,7 @@
 package model
 
 type AcademicHistory struct {
-	Username            string        `json:"username"`
+	UserCode            string        `json:"userCode"`
 	AcademicHistoryCode string        `json:"academicHistoryCode"`
 	Pa                  float64       `json:"pa"`
 	Papa                float64       `json:"papa"`
@@ -11,6 +11,11 @@ type AcademicHistory struct {
 	ProgressInfo        *ProgressInfo `json:"progressInfo"`
 	CreditsInfo         *CreditsInfo  `json:"creditsInfo"`
 	Semesters           []*Semester   `json:"semesters"`
+}
+
+type Appointment struct {
+	Start string `json:"start"`
+	End   string `json:"end"`
 }
 
 type Course struct {
@@ -58,14 +63,16 @@ type FinishedCourse struct {
 }
 
 type Grade struct {
-	StudentUsername     string  `json:"studentUsername"`
+	StudentCode         string  `json:"studentCode"`
 	AcademicHistoryCode string  `json:"academicHistoryCode"`
+	CourseCode          string  `json:"courseCode"`
 	Grade               float64 `json:"grade"`
 }
 
 type GradeInput struct {
-	StudentUsername     string  `json:"studentUsername"`
+	StudentCode         string  `json:"studentCode"`
 	AcademicHistoryCode string  `json:"academicHistoryCode"`
+	CourseCode          string  `json:"courseCode"`
 	Grade               float64 `json:"grade"`
 }
 
@@ -102,4 +109,12 @@ type User struct {
 	Code     string `json:"code"`
 	Username string `json:"username"`
 	Name     string `json:"name"`
+}
+
+type UserCourse struct {
+	CourseCode string      `json:"courseCode"`
+	GroupCode  string      `json:"groupCode"`
+	Name       string      `json:"name"`
+	Professor  *User       `json:"professor"`
+	Schedules  []*Schedule `json:"schedules"`
 }
