@@ -148,21 +148,30 @@ func (r *queryResolver) Courses(ctx context.Context, code *string, name *string,
 }
 
 // UserCourses is the resolver for the UserCourses field.
-func (r *queryResolver) UserCourses(ctx context.Context, userCode *string) ([]*model.Course, error) {
+func (r *queryResolver) UserCourses(ctx context.Context, userCode *string) ([]*model.UserCourse, error) {
 	// var urlCoursesService = "https://ebedb84e-b0a7-4762-ba03-512fc1d81606.mock.pstmn.io"
 	// var urlEnrollmentsService = "https://athenea-api-4axjffbidq-uc.a.run.app"
 	// client := resty.New()
 
-	courses := []*model.Course{}
+	courses := []*model.UserCourse{}
 
 	// Get assigned courses from enrollments service
 	return courses, nil
-
 }
 
 // AcademicHistories is the resolver for the AcademicHistories field.
-func (r *queryResolver) AcademicHistories(ctx context.Context, username string, academicHistoryCode string) ([]*model.AcademicHistory, error) {
+func (r *queryResolver) AcademicHistories(ctx context.Context, userCode string, academicHistoryCode string) ([]*model.AcademicHistory, error) {
 	panic(fmt.Errorf("not implemented: AcademicHistories - AcademicHistories"))
+}
+
+// PendingCourses is the resolver for the PendingCourses field.
+func (r *queryResolver) PendingCourses(ctx context.Context, userCode string, academicHistoryCode string) ([]*model.Course, error) {
+	panic(fmt.Errorf("not implemented: PendingCourses - PendingCourses"))
+}
+
+// Appointments is the resolver for the Appointments field.
+func (r *queryResolver) Appointments(ctx context.Context, userCode string) ([]*model.Appointment, error) {
+	panic(fmt.Errorf("not implemented: Appointments - Appointments"))
 }
 
 // Mutation returns generated.MutationResolver implementation.

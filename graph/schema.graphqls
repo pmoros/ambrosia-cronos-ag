@@ -19,6 +19,14 @@ type User {
   name: String!
 }
 
+type UserCourse {
+  courseCode: String!
+  groupCode: String!
+  name: String!
+  professor: User!
+  schedules: [Schedule!]
+}
+
 type CourseGroup {
   code: String!
   capacity: Float!
@@ -36,8 +44,9 @@ type Course {
 }
 
 type Grade {
-  studentUsername: String!
+  studentCode: String!
   academicHistoryCode: String!
+  courseCode: String!
   grade: Float!
 }
 
@@ -76,7 +85,7 @@ type Semester {
 }
 
 type AcademicHistory {
-  username: String!
+  userCode: String!
   academicHistoryCode: String!
   pa: Float!
   papa: Float!
@@ -92,6 +101,11 @@ type Enrollment {
   courseGroups: [String!]!
 }
 
+type Appointment {
+  start: String!
+  end: String!
+}
+
 input EnrollmentInput {
   studentCode: String!
   academicHistoryCode: String!
@@ -99,18 +113,21 @@ input EnrollmentInput {
 }
 
 input GradeInput {
-  studentUsername: String!
+  studentCode: String!
   academicHistoryCode: String!
+  courseCode: String!
   grade: Float!
 }
 
 type Query {
   Courses(code: String, name: String, component: String): [Course]!
-  UserCourses(userCode: String): [Course]!
+  UserCourses(userCode: String): [UserCourse]!
   AcademicHistories(
-    username: String!
+    userCode: String!
     academicHistoryCode: String!
   ): [AcademicHistory]!
+  PendingCourses(userCode: String!, academicHistoryCode: String!): [Course]!
+  Appointments(userCode: String!): [Appointment]
 }
 
 type Mutation {
