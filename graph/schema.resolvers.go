@@ -205,7 +205,16 @@ func (r *queryResolver) PendingCourses(ctx context.Context, userCode string, aca
 
 // Appointments is the resolver for the Appointments field.
 func (r *queryResolver) Appointments(ctx context.Context, userCode string) ([]*model.Appointment, error) {
-	panic(fmt.Errorf("not implemented: Appointments - Appointments"))
+	var urlGradesService = "https://b04e88f7-b644-4e1a-8d02-09e58818146e.mock.pstmn.io"
+	var appointmentsEndpoint = fmt.Sprintf("%s/%s/%s", urlGradesService, "appointments", userCode)
+	appointments := []*model.Appointment{}
+	client := resty.New()
+	client.R().
+		SetResult(&appointments).
+		EnableTrace().
+		Get(appointmentsEndpoint)
+
+	return appointments, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.
