@@ -115,13 +115,14 @@ func (r *mutationResolver) UploadGrades(ctx context.Context, input []*model.Grad
 
 // Courses is the resolver for the Courses field.
 func (r *queryResolver) Courses(ctx context.Context, code *string, name *string, component *string) ([]*model.Course, error) {
-	var urlCoursesService = "https://ebedb84e-b0a7-4762-ba03-512fc1d81606.mock.pstmn.io"
+	var urlCoursesService = "https://apollo-api-jo5b4asiwq-uc.a.run.app"
 	var urlEnrollmentsService = "https://athenea-api-4axjffbidq-uc.a.run.app"
+	// var urlEnrollmentsService = "http://127.0.0.1:8080"
 	client := resty.New()
 
 	// Get courses from courses service
 	courses := []*model.Course{}
-	coursesEndpoint := fmt.Sprintf("%s/%s", urlCoursesService, "courses")
+	coursesEndpoint := fmt.Sprintf("%s/%s", urlCoursesService, "subjects")
 	client.R().
 		SetQueryParams(map[string]string{
 			"code":      *code,
