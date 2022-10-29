@@ -82,11 +82,11 @@ type ProgramInfo struct {
 }
 
 type ProgressInfo struct {
-	Total          string `json:"total"`
-	Disciplinar    string `json:"disciplinar"`
-	Fundamentacion string `json:"fundamentacion"`
-	LibreEleccion  string `json:"libreEleccion"`
-	Nivelacion     string `json:"nivelacion"`
+	Total          float64 `json:"total"`
+	Disciplinar    float64 `json:"disciplinar"`
+	Fundamentacion float64 `json:"fundamentacion"`
+	LibreEleccion  float64 `json:"libreEleccion"`
+	Nivelacion     float64 `json:"nivelacion"`
 }
 
 type Schedule struct {

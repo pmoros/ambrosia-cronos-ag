@@ -181,7 +181,21 @@ func (r *queryResolver) UserCourses(ctx context.Context, userCode *string) ([]*m
 
 // AcademicHistories is the resolver for the AcademicHistories field.
 func (r *queryResolver) AcademicHistories(ctx context.Context, userCode string, academicHistoryCode string) ([]*model.AcademicHistory, error) {
-	panic(fmt.Errorf("not implemented: AcademicHistories - AcademicHistories"))
+	var urlGradesService = "https://b04e88f7-b644-4e1a-8d02-09e58818146e.mock.pstmn.io"
+	var academicHistoriesEndpoint = fmt.Sprintf("%s/%s", urlGradesService, "academic-histories")
+	academicHistories := []*model.AcademicHistory{}
+
+	client := resty.New()
+	client.R().
+		SetQueryParams(map[string]string{
+			"userCode":            userCode,
+			"academicHistoryCode": academicHistoryCode,
+		}).
+		SetResult(&academicHistories).
+		EnableTrace().
+		Get(academicHistoriesEndpoint)
+
+	return academicHistories, nil
 }
 
 // PendingCourses is the resolver for the PendingCourses field.

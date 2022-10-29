@@ -56,11 +56,11 @@ type ProgramInfo {
 }
 
 type ProgressInfo {
-  total: String!
-  disciplinar: String!
-  fundamentacion: String!
-  libreEleccion: String!
-  nivelacion: String!
+  total: Float!
+  disciplinar: Float!
+  fundamentacion: Float!
+  libreEleccion: Float!
+  nivelacion: Float!
 }
 
 type CreditsInfo {
