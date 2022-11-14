@@ -5,8 +5,7 @@ COPY . /go/ambrosia-atlas-api
 
 RUN go mod tidy
 RUN go mod download
-RUN go build -o /ambrosia-atlas-api
 
 EXPOSE 5000
 
-CMD [ "/ambrosia-atlas-api" ]
+CMD [ "go", "run", "." ]
