@@ -123,3 +123,7 @@ type UserCourse struct {
 	Professor  *User       `json:"professor"`
 	Schedules  []*Schedule `json:"schedules"`
 }
+
+type XMLResponse struct {
+	Data string `json:"data"`
+}

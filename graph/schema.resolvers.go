@@ -240,6 +240,31 @@ func (r *queryResolver) Appointments(ctx context.Context, userCode string) ([]*m
 	return appointments, nil
 }
 
+// AllCourses is the resolver for the AllCourses field.
+func (r *queryResolver) AllCourses(ctx context.Context, service string) (*model.XMLResponse, error) {
+	var externalSOAP = "https://campus-kid-interface.jhonatan.net/Service.svc"
+	var stringResponse string
+	soapBody := `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/">
+	<soapenv:Header/>
+	<soapenv:Body>
+	   <tem:GetDataFromApi/>
+	</soapenv:Body>
+ </soapenv:Envelope>`
+	client := resty.New()
+	resp, err := client.R().
+		SetHeader("Content-Type", "text/xml").
+		SetBody(soapBody).
+		EnableTrace().
+		Post(externalSOAP)
+
+	fmt.Print(stringResponse)
+	xmlResponse := model.XMLResponse{
+		Data: resp.String(),
+	}
+
+	return &xmlResponse, err
+}
+
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 

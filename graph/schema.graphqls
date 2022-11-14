@@ -106,6 +106,9 @@ type Appointment {
   start: String!
   end: String!
 }
+type XMLResponse {
+  data: String!
+}
 
 input EnrollmentInput {
   studentCode: String!
@@ -133,6 +136,7 @@ type Query {
   ): [AcademicHistory]!
   PendingCourses(userCode: String!, academicHistoryCode: String!): [Course]!
   Appointments(userCode: String!): [Appointment]
+  AllCourses(service: String!): XMLResponse!
 }
 
 type Mutation {
