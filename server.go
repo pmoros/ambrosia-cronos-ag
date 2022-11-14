@@ -8,6 +8,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 	"github.com/mondracode/ambrosia-atlas-api/graph"
 	"github.com/mondracode/ambrosia-atlas-api/graph/generated"
 	"github.com/rs/cors"
@@ -32,6 +33,8 @@ func main() {
 		AllowCredentials: true,
 		Debug:            true,
 	}).Handler)
+
+	router.Use(middleware.SetHeader("Access-Control-Allow-Origin", "*"))
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
 
