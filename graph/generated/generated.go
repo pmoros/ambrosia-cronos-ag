@@ -126,6 +126,7 @@ type ComplexityRoot struct {
 
 	Query struct {
 		AcademicHistories func(childComplexity int, userCode string, academicHistoryCode string) int
+		AllCourses        func(childComplexity int, service string) int
 		Appointments      func(childComplexity int, userCode string) int
 		Courses           func(childComplexity int, code *string, name *string, component *string) int
 		PendingCourses    func(childComplexity int, userCode string, academicHistoryCode string) int
@@ -161,6 +162,10 @@ type ComplexityRoot struct {
 		Professor  func(childComplexity int) int
 		Schedules  func(childComplexity int) int
 	}
+
+	XMLResponse struct {
+		Data func(childComplexity int) int
+	}
 }
 
 type MutationResolver interface {
@@ -173,6 +178,7 @@ type QueryResolver interface {
 	AcademicHistories(ctx context.Context, userCode string, academicHistoryCode string) ([]*model.AcademicHistory, error)
 	PendingCourses(ctx context.Context, userCode string, academicHistoryCode string) ([]*model.Course, error)
 	Appointments(ctx context.Context, userCode string) ([]*model.Appointment, error)
+	AllCourses(ctx context.Context, service string) (*model.XMLResponse, error)
 }
 
 type executableSchema struct {
@@ -541,6 +547,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.AcademicHistories(childComplexity, args["userCode"].(string), args["academicHistoryCode"].(string)), true
 
+	case "Query.AllCourses":
+		if e.complexity.Query.AllCourses == nil {
+			break
+		}
+
+		args, err := ec.field_Query_AllCourses_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.AllCourses(childComplexity, args["service"].(string)), true
+
 	case "Query.Appointments":
 		if e.complexity.Query.Appointments == nil {
 			break
@@ -714,6 +732,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.UserCourse.Schedules(childComplexity), true
+
+	case "XMLResponse.data":
+		if e.complexity.XMLResponse.Data == nil {
+			break
+		}
+
+		return e.complexity.XMLResponse.Data(childComplexity), true
 
 	}
 	return 0, false
@@ -894,6 +919,9 @@ type Appointment {
   start: String!
   end: String!
 }
+type XMLResponse {
+  data: String!
+}
 
 input EnrollmentInput {
   studentCode: String!
@@ -921,6 +949,7 @@ type Query {
   ): [AcademicHistory]!
   PendingCourses(userCode: String!, academicHistoryCode: String!): [Course]!
   Appointments(userCode: String!): [Appointment]
+  AllCourses(service: String!): XMLResponse!
 }
 
 type Mutation {
@@ -986,6 +1015,21 @@ func (ec *executionContext) field_Query_AcademicHistories_args(ctx context.Conte
 		}
 	}
 	args["academicHistoryCode"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_AllCourses_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["service"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("service"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["service"] = arg0
 	return args, nil
 }
 
@@ -3636,6 +3680,65 @@ func (ec *executionContext) fieldContext_Query_Appointments(ctx context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_AllCourses(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_AllCourses(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().AllCourses(rctx, fc.Args["service"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.XMLResponse)
+	fc.Result = res
+	return ec.marshalNXMLResponse2ᚖgithubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐXMLResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_AllCourses(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "data":
+				return ec.fieldContext_XMLResponse_data(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type XMLResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_AllCourses_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query___type(ctx, field)
 	if err != nil {
@@ -4584,6 +4687,50 @@ func (ec *executionContext) fieldContext_UserCourse_schedules(ctx context.Contex
 				return ec.fieldContext_Schedule_timeOfEnd(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Schedule", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _XMLResponse_data(ctx context.Context, field graphql.CollectedField, obj *model.XMLResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_XMLResponse_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_XMLResponse_data(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "XMLResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -7189,6 +7336,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "AllCourses":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_AllCourses(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "__type":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -7405,6 +7575,34 @@ func (ec *executionContext) _UserCourse(ctx context.Context, sel ast.SelectionSe
 
 			out.Values[i] = ec._UserCourse_schedules(ctx, field, obj)
 
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var xMLResponseImplementors = []string{"XMLResponse"}
+
+func (ec *executionContext) _XMLResponse(ctx context.Context, sel ast.SelectionSet, obj *model.XMLResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, xMLResponseImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("XMLResponse")
+		case "data":
+
+			out.Values[i] = ec._XMLResponse_data(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -8087,6 +8285,20 @@ func (ec *executionContext) marshalNUserCourse2ᚕᚖgithubᚗcomᚋmondracode�
 	wg.Wait()
 
 	return ret
+}
+
+func (ec *executionContext) marshalNXMLResponse2githubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐXMLResponse(ctx context.Context, sel ast.SelectionSet, v model.XMLResponse) graphql.Marshaler {
+	return ec._XMLResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNXMLResponse2ᚖgithubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐXMLResponse(ctx context.Context, sel ast.SelectionSet, v *model.XMLResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._XMLResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {

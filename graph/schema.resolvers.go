@@ -36,7 +36,7 @@ func (r *mutationResolver) EnrollCourses(ctx context.Context, input model.Enroll
 	resp, err := client.R().
 		SetBody(input).
 		EnableTrace().
-		Get(gradesEndpoint)
+		Post(gradesEndpoint)
 
 	if err != nil {
 		return nil, fmt.Errorf("error: %s", err)
@@ -179,13 +179,17 @@ func (r *queryResolver) UserCourses(ctx context.Context, userCode *string) ([]*m
 	// Set groups name
 	for _, course := range courses {
 		coursesEndpoint := fmt.Sprintf("%s/%s", urlCoursesService, "subjects")
+		courseGroups := courses
 		client.R().
 			SetQueryParams(map[string]string{
 				"code": course.CourseCode,
 			}).
-			SetResult(&courses).
+			SetResult(&courseGroups).
 			EnableTrace().
 			Get(coursesEndpoint)
+		if len(courseGroups) > 0 {
+			courses = courseGroups
+		}
 	}
 
 	return courses, nil
@@ -238,6 +242,31 @@ func (r *queryResolver) Appointments(ctx context.Context, userCode string) ([]*m
 		Get(appointmentsEndpoint)
 
 	return appointments, nil
+}
+
+// AllCourses is the resolver for the AllCourses field.
+func (r *queryResolver) AllCourses(ctx context.Context, service string) (*model.XMLResponse, error) {
+	var externalSOAP = "https://campus-kid-interface.jhonatan.net/Service.svc"
+	var stringResponse string
+	soapBody := `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/">
+	<soapenv:Header/>
+	<soapenv:Body>
+	   <tem:GetDataFromApi/>
+	</soapenv:Body>
+ </soapenv:Envelope>`
+	client := resty.New()
+	resp, err := client.R().
+		SetHeader("Content-Type", "text/xml").
+		SetBody(soapBody).
+		EnableTrace().
+		Post(externalSOAP)
+
+	fmt.Print(stringResponse)
+	xmlResponse := model.XMLResponse{
+		Data: resp.String(),
+	}
+
+	return &xmlResponse, err
 }
 
 // Mutation returns generated.MutationResolver implementation.
