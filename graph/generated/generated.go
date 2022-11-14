@@ -102,12 +102,13 @@ type ComplexityRoot struct {
 		AcademicHistoryCode func(childComplexity int) int
 		CourseCode          func(childComplexity int) int
 		Grade               func(childComplexity int) int
-		StudentCode         func(childComplexity int) int
+		ID                  func(childComplexity int) int
+		UserCode            func(childComplexity int) int
 	}
 
 	Mutation struct {
 		EnrollCourses func(childComplexity int, input model.EnrollmentInput) int
-		UploadGrades  func(childComplexity int, input []*model.GradeInput) int
+		UploadGrades  func(childComplexity int, input model.GradesInput) int
 	}
 
 	ProgramInfo struct {
@@ -164,7 +165,7 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	EnrollCourses(ctx context.Context, input model.EnrollmentInput) (*model.Enrollment, error)
-	UploadGrades(ctx context.Context, input []*model.GradeInput) ([]*model.Grade, error)
+	UploadGrades(ctx context.Context, input model.GradesInput) ([]*model.Grade, error)
 }
 type QueryResolver interface {
 	Courses(ctx context.Context, code *string, name *string, component *string) ([]*model.Course, error)
@@ -441,12 +442,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Grade.Grade(childComplexity), true
 
-	case "Grade.studentCode":
-		if e.complexity.Grade.StudentCode == nil {
+	case "Grade._id":
+		if e.complexity.Grade.ID == nil {
 			break
 		}
 
-		return e.complexity.Grade.StudentCode(childComplexity), true
+		return e.complexity.Grade.ID(childComplexity), true
+
+	case "Grade.userCode":
+		if e.complexity.Grade.UserCode == nil {
+			break
+		}
+
+		return e.complexity.Grade.UserCode(childComplexity), true
 
 	case "Mutation.EnrollCourses":
 		if e.complexity.Mutation.EnrollCourses == nil {
@@ -470,7 +478,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UploadGrades(childComplexity, args["input"].([]*model.GradeInput)), true
+		return e.complexity.Mutation.UploadGrades(childComplexity, args["input"].(model.GradesInput)), true
 
 	case "ProgramInfo.code":
 		if e.complexity.ProgramInfo.Code == nil {
@@ -717,6 +725,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputEnrollmentInput,
 		ec.unmarshalInputGradeInput,
+		ec.unmarshalInputGradesInput,
 	)
 	first := true
 
@@ -823,10 +832,11 @@ type Course {
 }
 
 type Grade {
-  studentCode: String!
+  _id: String!
+  userCode: String!
   academicHistoryCode: String!
-  courseCode: String!
   grade: Float!
+  courseCode: String!
 }
 
 type ProgramInfo {
@@ -891,10 +901,14 @@ input EnrollmentInput {
   courseGroups: [String!]!
 }
 
-input GradeInput {
-  studentCode: String!
-  academicHistoryCode: String!
+input GradesInput {
   courseCode: String!
+  grades: [GradeInput!]!
+}
+
+input GradeInput {
+  userCode: String!
+  academicHistoryCode: String!
   grade: Float!
 }
 
@@ -911,7 +925,7 @@ type Query {
 
 type Mutation {
   EnrollCourses(input: EnrollmentInput!): Enrollment!
-  UploadGrades(input: [GradeInput!]): [Grade]!
+  UploadGrades(input: GradesInput!): [Grade]!
 }
 `, BuiltIn: false},
 }
@@ -939,10 +953,10 @@ func (ec *executionContext) field_Mutation_EnrollCourses_args(ctx context.Contex
 func (ec *executionContext) field_Mutation_UploadGrades_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 []*model.GradeInput
+	var arg0 model.GradesInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalOGradeInput2ᚕᚖgithubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐGradeInputᚄ(ctx, tmp)
+		arg0, err = ec.unmarshalNGradesInput2githubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐGradesInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -2632,8 +2646,8 @@ func (ec *executionContext) fieldContext_FinishedCourse_passed(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _Grade_studentCode(ctx context.Context, field graphql.CollectedField, obj *model.Grade) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Grade_studentCode(ctx, field)
+func (ec *executionContext) _Grade__id(ctx context.Context, field graphql.CollectedField, obj *model.Grade) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Grade__id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2646,7 +2660,7 @@ func (ec *executionContext) _Grade_studentCode(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.StudentCode, nil
+		return obj.ID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2663,7 +2677,51 @@ func (ec *executionContext) _Grade_studentCode(ctx context.Context, field graphq
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Grade_studentCode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Grade__id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Grade",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Grade_userCode(ctx context.Context, field graphql.CollectedField, obj *model.Grade) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Grade_userCode(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserCode, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Grade_userCode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Grade",
 		Field:      field,
@@ -2720,50 +2778,6 @@ func (ec *executionContext) fieldContext_Grade_academicHistoryCode(ctx context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _Grade_courseCode(ctx context.Context, field graphql.CollectedField, obj *model.Grade) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Grade_courseCode(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CourseCode, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Grade_courseCode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Grade",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Grade_grade(ctx context.Context, field graphql.CollectedField, obj *model.Grade) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Grade_grade(ctx, field)
 	if err != nil {
@@ -2803,6 +2817,50 @@ func (ec *executionContext) fieldContext_Grade_grade(ctx context.Context, field 
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Grade_courseCode(ctx context.Context, field graphql.CollectedField, obj *model.Grade) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Grade_courseCode(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CourseCode, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Grade_courseCode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Grade",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2885,7 +2943,7 @@ func (ec *executionContext) _Mutation_UploadGrades(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UploadGrades(rctx, fc.Args["input"].([]*model.GradeInput))
+		return ec.resolvers.Mutation().UploadGrades(rctx, fc.Args["input"].(model.GradesInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2910,14 +2968,16 @@ func (ec *executionContext) fieldContext_Mutation_UploadGrades(ctx context.Conte
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "studentCode":
-				return ec.fieldContext_Grade_studentCode(ctx, field)
+			case "_id":
+				return ec.fieldContext_Grade__id(ctx, field)
+			case "userCode":
+				return ec.fieldContext_Grade_userCode(ctx, field)
 			case "academicHistoryCode":
 				return ec.fieldContext_Grade_academicHistoryCode(ctx, field)
-			case "courseCode":
-				return ec.fieldContext_Grade_courseCode(ctx, field)
 			case "grade":
 				return ec.fieldContext_Grade_grade(ctx, field)
+			case "courseCode":
+				return ec.fieldContext_Grade_courseCode(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Grade", field.Name)
 		},
@@ -6353,18 +6413,18 @@ func (ec *executionContext) unmarshalInputGradeInput(ctx context.Context, obj in
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"studentCode", "academicHistoryCode", "courseCode", "grade"}
+	fieldsInOrder := [...]string{"userCode", "academicHistoryCode", "grade"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "studentCode":
+		case "userCode":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("studentCode"))
-			it.StudentCode, err = ec.unmarshalNString2string(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userCode"))
+			it.UserCode, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -6376,6 +6436,34 @@ func (ec *executionContext) unmarshalInputGradeInput(ctx context.Context, obj in
 			if err != nil {
 				return it, err
 			}
+		case "grade":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("grade"))
+			it.Grade, err = ec.unmarshalNFloat2float64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputGradesInput(ctx context.Context, obj interface{}) (model.GradesInput, error) {
+	var it model.GradesInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"courseCode", "grades"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
 		case "courseCode":
 			var err error
 
@@ -6384,11 +6472,11 @@ func (ec *executionContext) unmarshalInputGradeInput(ctx context.Context, obj in
 			if err != nil {
 				return it, err
 			}
-		case "grade":
+		case "grades":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("grade"))
-			it.Grade, err = ec.unmarshalNFloat2float64(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("grades"))
+			it.Grades, err = ec.unmarshalNGradeInput2ᚕᚖgithubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐGradeInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -6785,9 +6873,16 @@ func (ec *executionContext) _Grade(ctx context.Context, sel ast.SelectionSet, ob
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Grade")
-		case "studentCode":
+		case "_id":
 
-			out.Values[i] = ec._Grade_studentCode(ctx, field, obj)
+			out.Values[i] = ec._Grade__id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "userCode":
+
+			out.Values[i] = ec._Grade_userCode(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -6799,16 +6894,16 @@ func (ec *executionContext) _Grade(ctx context.Context, sel ast.SelectionSet, ob
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "courseCode":
+		case "grade":
 
-			out.Values[i] = ec._Grade_courseCode(ctx, field, obj)
+			out.Values[i] = ec._Grade_grade(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "grade":
+		case "courseCode":
 
-			out.Values[i] = ec._Grade_grade(ctx, field, obj)
+			out.Values[i] = ec._Grade_courseCode(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -7832,9 +7927,31 @@ func (ec *executionContext) marshalNGrade2ᚕᚖgithubᚗcomᚋmondracodeᚋambr
 	return ret
 }
 
+func (ec *executionContext) unmarshalNGradeInput2ᚕᚖgithubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐGradeInputᚄ(ctx context.Context, v interface{}) ([]*model.GradeInput, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.GradeInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNGradeInput2ᚖgithubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐGradeInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
 func (ec *executionContext) unmarshalNGradeInput2ᚖgithubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐGradeInput(ctx context.Context, v interface{}) (*model.GradeInput, error) {
 	res, err := ec.unmarshalInputGradeInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNGradesInput2githubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐGradesInput(ctx context.Context, v interface{}) (model.GradesInput, error) {
+	res, err := ec.unmarshalInputGradesInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNProgramInfo2ᚖgithubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐProgramInfo(ctx context.Context, sel ast.SelectionSet, v *model.ProgramInfo) graphql.Marshaler {
@@ -8412,26 +8529,6 @@ func (ec *executionContext) marshalOGrade2ᚖgithubᚗcomᚋmondracodeᚋambrosi
 		return graphql.Null
 	}
 	return ec._Grade(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOGradeInput2ᚕᚖgithubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐGradeInputᚄ(ctx context.Context, v interface{}) ([]*model.GradeInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]*model.GradeInput, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNGradeInput2ᚖgithubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐGradeInput(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
 }
 
 func (ec *executionContext) marshalOSchedule2ᚕᚖgithubᚗcomᚋmondracodeᚋambrosiaᚑatlasᚑapiᚋgraphᚋmodelᚐScheduleᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Schedule) graphql.Marshaler {

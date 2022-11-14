@@ -19,7 +19,7 @@ import (
 
 // EnrollCourses is the resolver for the EnrollCourses field.
 func (r *mutationResolver) EnrollCourses(ctx context.Context, input model.EnrollmentInput) (*model.Enrollment, error) {
-	urlGrades := "https://b04e88f7-b644-4e1a-8d02-09e58818146e.mock.pstmn.io"
+	urlGrades := "https://ambrosia-artemis-api-4axjffbidq-uc.a.run.app"
 	urlEnrollmentsMQ := "amqp://guest:guest@34.125.61.62:5672/"
 	// urlEnrollmentsMQ := "amqp://guest:guest@localhost:5672/"
 
@@ -109,9 +109,11 @@ func (r *mutationResolver) EnrollCourses(ctx context.Context, input model.Enroll
 }
 
 // UploadGrades is the resolver for the UploadGrades field.
-func (r *mutationResolver) UploadGrades(ctx context.Context, input []*model.GradeInput) ([]*model.Grade, error) {
-	var urlGradesService = "https://b04e88f7-b644-4e1a-8d02-09e58818146e.mock.pstmn.io"
+func (r *mutationResolver) UploadGrades(ctx context.Context, input model.GradesInput) ([]*model.Grade, error) {
+	var urlGradesService = "https://ambrosia-artemis-api-4axjffbidq-uc.a.run.app"
 	var urlPublishGrades = fmt.Sprintf("%s/%s", urlGradesService, "publish-grades")
+
+	fmt.Println(urlPublishGrades)
 
 	grades := []*model.Grade{}
 
@@ -120,17 +122,15 @@ func (r *mutationResolver) UploadGrades(ctx context.Context, input []*model.Grad
 		SetBody(input).
 		SetResult(&grades).
 		EnableTrace().
-		Put(urlPublishGrades)
+		Post(urlPublishGrades)
 
 	return grades, nil
-
 }
 
 // Courses is the resolver for the Courses field.
 func (r *queryResolver) Courses(ctx context.Context, code *string, name *string, component *string) ([]*model.Course, error) {
-	var urlCoursesService = "https://apollo-api-jo5b4asiwq-uc.a.run.app"
+	var urlCoursesService = "https://ambrosia-apollo-api-jo5b4asiwq-uc.a.run.app"
 	var urlEnrollmentsService = "https://athenea-api-4axjffbidq-uc.a.run.app"
-	// var urlEnrollmentsService = "http://127.0.0.1:8080"
 	client := resty.New()
 
 	// Get courses from courses service
@@ -163,8 +163,7 @@ func (r *queryResolver) Courses(ctx context.Context, code *string, name *string,
 
 // UserCourses is the resolver for the UserCourses field.
 func (r *queryResolver) UserCourses(ctx context.Context, userCode *string) ([]*model.UserCourse, error) {
-	// var urlCoursesService = "https://ebedb84e-b0a7-4762-ba03-512fc1d81606.mock.pstmn.io"
-	var urlCoursesService = "https://apollo-api-jo5b4asiwq-uc.a.run.app"
+	var urlCoursesService = "https://ambrosia-apollo-api-jo5b4asiwq-uc.a.run.app"
 	var urlEnrollmentsService = "https://athenea-api-4axjffbidq-uc.a.run.app"
 	client := resty.New()
 
@@ -194,7 +193,7 @@ func (r *queryResolver) UserCourses(ctx context.Context, userCode *string) ([]*m
 
 // AcademicHistories is the resolver for the AcademicHistories field.
 func (r *queryResolver) AcademicHistories(ctx context.Context, userCode string, academicHistoryCode string) ([]*model.AcademicHistory, error) {
-	var urlGradesService = "https://b04e88f7-b644-4e1a-8d02-09e58818146e.mock.pstmn.io"
+	var urlGradesService = "https://ambrosia-artemis-api-4axjffbidq-uc.a.run.app"
 	var academicHistoriesEndpoint = fmt.Sprintf("%s/%s", urlGradesService, "academic-histories")
 	academicHistories := []*model.AcademicHistory{}
 
@@ -213,7 +212,7 @@ func (r *queryResolver) AcademicHistories(ctx context.Context, userCode string, 
 
 // PendingCourses is the resolver for the PendingCourses field.
 func (r *queryResolver) PendingCourses(ctx context.Context, userCode string, academicHistoryCode string) ([]*model.Course, error) {
-	var urlCoursesService = "https://apollo-api-jo5b4asiwq-uc.a.run.app"
+	var urlCoursesService = "https://ambrosia-apollo-api-jo5b4asiwq-uc.a.run.app"
 	var allCoursesEndpoint = fmt.Sprintf("%s/%s", urlCoursesService, "subjects/get_all")
 
 	courses := []*model.Course{}
@@ -225,12 +224,11 @@ func (r *queryResolver) PendingCourses(ctx context.Context, userCode string, aca
 		Get(allCoursesEndpoint)
 
 	return courses, nil
-
 }
 
 // Appointments is the resolver for the Appointments field.
 func (r *queryResolver) Appointments(ctx context.Context, userCode string) ([]*model.Appointment, error) {
-	var urlGradesService = "https://b04e88f7-b644-4e1a-8d02-09e58818146e.mock.pstmn.io"
+	var urlGradesService = "https://ambrosia-artemis-api-4axjffbidq-uc.a.run.app"
 	var appointmentsEndpoint = fmt.Sprintf("%s/%s/%s", urlGradesService, "appointments", userCode)
 	appointments := []*model.Appointment{}
 	client := resty.New()

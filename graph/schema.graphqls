@@ -44,10 +44,11 @@ type Course {
 }
 
 type Grade {
-  studentCode: String!
+  _id: String!
+  userCode: String!
   academicHistoryCode: String!
-  courseCode: String!
   grade: Float!
+  courseCode: String!
 }
 
 type ProgramInfo {
@@ -112,10 +113,14 @@ input EnrollmentInput {
   courseGroups: [String!]!
 }
 
-input GradeInput {
-  studentCode: String!
-  academicHistoryCode: String!
+input GradesInput {
   courseCode: String!
+  grades: [GradeInput!]!
+}
+
+input GradeInput {
+  userCode: String!
+  academicHistoryCode: String!
   grade: Float!
 }
 
@@ -132,5 +137,5 @@ type Query {
 
 type Mutation {
   EnrollCourses(input: EnrollmentInput!): Enrollment!
-  UploadGrades(input: [GradeInput!]): [Grade]!
+  UploadGrades(input: GradesInput!): [Grade]!
 }

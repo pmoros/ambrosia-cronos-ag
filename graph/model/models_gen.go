@@ -63,17 +63,22 @@ type FinishedCourse struct {
 }
 
 type Grade struct {
-	StudentCode         string  `json:"studentCode"`
+	ID                  string  `json:"_id"`
+	UserCode            string  `json:"userCode"`
 	AcademicHistoryCode string  `json:"academicHistoryCode"`
-	CourseCode          string  `json:"courseCode"`
 	Grade               float64 `json:"grade"`
+	CourseCode          string  `json:"courseCode"`
 }
 
 type GradeInput struct {
-	StudentCode         string  `json:"studentCode"`
+	UserCode            string  `json:"userCode"`
 	AcademicHistoryCode string  `json:"academicHistoryCode"`
-	CourseCode          string  `json:"courseCode"`
 	Grade               float64 `json:"grade"`
+}
+
+type GradesInput struct {
+	CourseCode string        `json:"courseCode"`
+	Grades     []*GradeInput `json:"grades"`
 }
 
 type ProgramInfo struct {
