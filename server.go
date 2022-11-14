@@ -28,6 +28,7 @@ func main() {
 	router.Use(cors.New(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
 		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Accept-Language", "Content-Type"},
 		AllowCredentials: true,
 		Debug:            true,
 	}).Handler)
