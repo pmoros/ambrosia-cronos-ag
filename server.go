@@ -34,6 +34,8 @@ func main() {
 		Debug:            true,
 	}).Handler)
 
+	router.Use(middleware.SetHeader("Origin", "*"))
+	router.Use(middleware.SetHeader("Access-Control-Allow-Headers", "Content-Type"))
 	router.Use(middleware.SetHeader("Access-Control-Allow-Origin", "*"))
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
