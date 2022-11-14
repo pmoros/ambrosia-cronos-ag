@@ -36,7 +36,7 @@ func (r *mutationResolver) EnrollCourses(ctx context.Context, input model.Enroll
 	resp, err := client.R().
 		SetBody(input).
 		EnableTrace().
-		Get(gradesEndpoint)
+		Post(gradesEndpoint)
 
 	if err != nil {
 		return nil, fmt.Errorf("error: %s", err)
