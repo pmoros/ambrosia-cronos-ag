@@ -179,13 +179,17 @@ func (r *queryResolver) UserCourses(ctx context.Context, userCode *string) ([]*m
 	// Set groups name
 	for _, course := range courses {
 		coursesEndpoint := fmt.Sprintf("%s/%s", urlCoursesService, "subjects")
+		courseGroups := courses
 		client.R().
 			SetQueryParams(map[string]string{
 				"code": course.CourseCode,
 			}).
-			SetResult(&courses).
+			SetResult(&courseGroups).
 			EnableTrace().
 			Get(coursesEndpoint)
+		if len(courseGroups) > 0 {
+			courses = courseGroups
+		}
 	}
 
 	return courses, nil
