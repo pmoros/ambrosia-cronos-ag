@@ -223,7 +223,7 @@ func (r *queryResolver) PendingCourses(ctx context.Context, userCode string, aca
 		EnableTrace().
 		Get(allCoursesEndpoint)
 
-	return courses, nil
+	return courses[:4], nil
 }
 
 // Appointments is the resolver for the Appointments field.
