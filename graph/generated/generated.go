@@ -125,7 +125,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		AcademicHistories func(childComplexity int, userCode string, academicHistoryCode string) int
+		AcademicHistories func(childComplexity int, userCode string, academicHistoryCode *string) int
 		AllCourses        func(childComplexity int, service string) int
 		Appointments      func(childComplexity int, userCode string) int
 		Courses           func(childComplexity int, code *string, name *string, component *string) int
@@ -175,7 +175,7 @@ type MutationResolver interface {
 type QueryResolver interface {
 	Courses(ctx context.Context, code *string, name *string, component *string) ([]*model.Course, error)
 	UserCourses(ctx context.Context, userCode *string) ([]*model.UserCourse, error)
-	AcademicHistories(ctx context.Context, userCode string, academicHistoryCode string) ([]*model.AcademicHistory, error)
+	AcademicHistories(ctx context.Context, userCode string, academicHistoryCode *string) ([]*model.AcademicHistory, error)
 	PendingCourses(ctx context.Context, userCode string, academicHistoryCode string) ([]*model.Course, error)
 	Appointments(ctx context.Context, userCode string) ([]*model.Appointment, error)
 	AllCourses(ctx context.Context, service string) (*model.XMLResponse, error)
@@ -545,7 +545,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.AcademicHistories(childComplexity, args["userCode"].(string), args["academicHistoryCode"].(string)), true
+		return e.complexity.Query.AcademicHistories(childComplexity, args["userCode"].(string), args["academicHistoryCode"].(*string)), true
 
 	case "Query.AllCourses":
 		if e.complexity.Query.AllCourses == nil {
@@ -945,7 +945,7 @@ type Query {
   UserCourses(userCode: String): [UserCourse]!
   AcademicHistories(
     userCode: String!
-    academicHistoryCode: String!
+    academicHistoryCode: String
   ): [AcademicHistory]!
   PendingCourses(userCode: String!, academicHistoryCode: String!): [Course]!
   Appointments(userCode: String!): [Appointment]
@@ -1006,10 +1006,10 @@ func (ec *executionContext) field_Query_AcademicHistories_args(ctx context.Conte
 		}
 	}
 	args["userCode"] = arg0
-	var arg1 string
+	var arg1 *string
 	if tmp, ok := rawArgs["academicHistoryCode"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("academicHistoryCode"))
-		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -3496,7 +3496,7 @@ func (ec *executionContext) _Query_AcademicHistories(ctx context.Context, field 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().AcademicHistories(rctx, fc.Args["userCode"].(string), fc.Args["academicHistoryCode"].(string))
+		return ec.resolvers.Query().AcademicHistories(rctx, fc.Args["userCode"].(string), fc.Args["academicHistoryCode"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

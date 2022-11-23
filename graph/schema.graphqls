@@ -132,7 +132,7 @@ type Query {
   UserCourses(userCode: String): [UserCourse]!
   AcademicHistories(
     userCode: String!
-    academicHistoryCode: String!
+    academicHistoryCode: String
   ): [AcademicHistory]!
   PendingCourses(userCode: String!, academicHistoryCode: String!): [Course]!
   Appointments(userCode: String!): [Appointment]

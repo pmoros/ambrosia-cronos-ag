@@ -9,6 +9,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	resty "github.com/go-resty/resty/v2"
@@ -19,8 +20,8 @@ import (
 
 // EnrollCourses is the resolver for the EnrollCourses field.
 func (r *mutationResolver) EnrollCourses(ctx context.Context, input model.EnrollmentInput) (*model.Enrollment, error) {
-	urlGrades := "https://ambrosia-artemis-api-4axjffbidq-uc.a.run.app"
-	urlEnrollmentsMQ := "amqp://guest:guest@34.125.61.62:5672/"
+	urlGrades := os.Getenv("GRADES_ARTEMIS_URL")
+	urlEnrollmentsMQ := os.Getenv("ENROLLMENTS_MQ_URL")
 	// urlEnrollmentsMQ := "amqp://guest:guest@localhost:5672/"
 
 	client := resty.New()
@@ -110,7 +111,7 @@ func (r *mutationResolver) EnrollCourses(ctx context.Context, input model.Enroll
 
 // UploadGrades is the resolver for the UploadGrades field.
 func (r *mutationResolver) UploadGrades(ctx context.Context, input model.GradesInput) ([]*model.Grade, error) {
-	var urlGradesService = "https://ambrosia-artemis-api-4axjffbidq-uc.a.run.app"
+	var urlGradesService = os.Getenv("GRADES_ARTEMIS_URL")
 	var urlPublishGrades = fmt.Sprintf("%s/%s", urlGradesService, "publish-grades")
 
 	fmt.Println(urlPublishGrades)
@@ -129,8 +130,8 @@ func (r *mutationResolver) UploadGrades(ctx context.Context, input model.GradesI
 
 // Courses is the resolver for the Courses field.
 func (r *queryResolver) Courses(ctx context.Context, code *string, name *string, component *string) ([]*model.Course, error) {
-	var urlCoursesService = "https://ambrosia-apollo-api-jo5b4asiwq-uc.a.run.app"
-	var urlEnrollmentsService = "https://athenea-api-4axjffbidq-uc.a.run.app"
+	var urlCoursesService = os.Getenv("COURSES_APOLLO_URL")
+	var urlEnrollmentsService = os.Getenv("ENROLLMENTS_ATHENEA_URL")
 	client := resty.New()
 
 	// Get courses from courses service
@@ -163,8 +164,8 @@ func (r *queryResolver) Courses(ctx context.Context, code *string, name *string,
 
 // UserCourses is the resolver for the UserCourses field.
 func (r *queryResolver) UserCourses(ctx context.Context, userCode *string) ([]*model.UserCourse, error) {
-	var urlCoursesService = "https://ambrosia-apollo-api-jo5b4asiwq-uc.a.run.app"
-	var urlEnrollmentsService = "https://athenea-api-4axjffbidq-uc.a.run.app"
+	var urlCoursesService = os.Getenv("COURSES_APOLLO_URL")
+	var urlEnrollmentsService = os.Getenv("ENROLLMENTS_ATHENEA_URL")
 	client := resty.New()
 
 	courses := []*model.UserCourse{}
@@ -196,17 +197,27 @@ func (r *queryResolver) UserCourses(ctx context.Context, userCode *string) ([]*m
 }
 
 // AcademicHistories is the resolver for the AcademicHistories field.
-func (r *queryResolver) AcademicHistories(ctx context.Context, userCode string, academicHistoryCode string) ([]*model.AcademicHistory, error) {
-	var urlGradesService = "https://ambrosia-artemis-api-4axjffbidq-uc.a.run.app"
+func (r *queryResolver) AcademicHistories(ctx context.Context, userCode string, academicHistoryCode *string) ([]*model.AcademicHistory, error) {
+	var urlGradesService = os.Getenv("GRADES_ARTEMIS_URL")
 	var academicHistoriesEndpoint = fmt.Sprintf("%s/%s", urlGradesService, "academic-histories")
+	var queryParams = map[string]string{}
+
 	academicHistories := []*model.AcademicHistory{}
+
+	if academicHistoryCode != nil {
+		queryParams = map[string]string{
+			"userCode":            userCode,
+			"academicHistoryCode": *academicHistoryCode,
+		}
+	} else {
+		queryParams = map[string]string{
+			"userCode": userCode,
+		}
+	}
 
 	client := resty.New()
 	client.R().
-		SetQueryParams(map[string]string{
-			"userCode":            userCode,
-			"academicHistoryCode": academicHistoryCode,
-		}).
+		SetQueryParams(queryParams).
 		SetResult(&academicHistories).
 		EnableTrace().
 		Get(academicHistoriesEndpoint)
@@ -216,7 +227,7 @@ func (r *queryResolver) AcademicHistories(ctx context.Context, userCode string, 
 
 // PendingCourses is the resolver for the PendingCourses field.
 func (r *queryResolver) PendingCourses(ctx context.Context, userCode string, academicHistoryCode string) ([]*model.Course, error) {
-	var urlCoursesService = "https://ambrosia-apollo-api-jo5b4asiwq-uc.a.run.app"
+	var urlCoursesService = os.Getenv("COURSES_APOLLO_URL")
 	var allCoursesEndpoint = fmt.Sprintf("%s/%s", urlCoursesService, "subjects/get_all")
 
 	courses := []*model.Course{}
@@ -232,7 +243,7 @@ func (r *queryResolver) PendingCourses(ctx context.Context, userCode string, aca
 
 // Appointments is the resolver for the Appointments field.
 func (r *queryResolver) Appointments(ctx context.Context, userCode string) ([]*model.Appointment, error) {
-	var urlGradesService = "https://ambrosia-artemis-api-4axjffbidq-uc.a.run.app"
+	var urlGradesService = os.Getenv("GRADES_ARTEMIS_URL")
 	var appointmentsEndpoint = fmt.Sprintf("%s/%s/%s", urlGradesService, "appointments", userCode)
 	appointments := []*model.Appointment{}
 	client := resty.New()

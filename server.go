@@ -9,6 +9,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/joho/godotenv"
 	"github.com/mondracode/ambrosia-atlas-api/graph"
 	"github.com/mondracode/ambrosia-atlas-api/graph/generated"
 	"github.com/rs/cors"
@@ -17,6 +18,11 @@ import (
 const defaultPort = "5000"
 
 func main() {
+	errEnv := godotenv.Load(".env")
+	if errEnv != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort
