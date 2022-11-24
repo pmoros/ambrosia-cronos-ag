@@ -20,11 +20,11 @@ import (
 
 // EnrollCourses is the resolver for the EnrollCourses field.
 func (r *mutationResolver) EnrollCourses(ctx context.Context, input model.EnrollmentInput) (*model.Enrollment, error) {
-	urlGrades := os.Getenv("GRADES_ARTEMIS_URL")
+	// urlGrades := os.Getenv("GRADES_ARTEMIS_URL")
 	urlEnrollmentsMQ := os.Getenv("ENROLLMENTS_MQ_URL")
 	// urlEnrollmentsMQ := "amqp://guest:guest@localhost:5672/"
 
-	client := resty.New()
+	// client := resty.New()
 
 	enrollment := model.Enrollment{
 		StudentCode:         input.StudentCode,
@@ -33,19 +33,19 @@ func (r *mutationResolver) EnrollCourses(ctx context.Context, input model.Enroll
 	}
 
 	// validates if the student can enroll the course
-	gradesEndpoint := fmt.Sprintf("%s/%s", urlGrades, "can-enroll")
-	resp, err := client.R().
-		SetBody(input).
-		EnableTrace().
-		Post(gradesEndpoint)
+	// gradesEndpoint := fmt.Sprintf("%s/%s", urlGrades, "can-enroll")
+	// resp, err := client.R().
+	// 	SetBody(input).
+	// 	EnableTrace().
+	// 	Post(gradesEndpoint)
 
-	if err != nil {
-		return nil, fmt.Errorf("error: %s", err)
-	}
+	// if err != nil {
+	// 	return nil, fmt.Errorf("error: %s", err)
+	// }
 
-	if resp.StatusCode() != 200 {
-		return nil, fmt.Errorf("error: %s", resp.Status())
-	}
+	// if resp.StatusCode() != 200 {
+	// 	return nil, fmt.Errorf("error: %s", resp.Status())
+	// }
 
 	// Enroll courses using enrollments service and enrollments queue
 	conn, err := amqp.Dial(urlEnrollmentsMQ)
